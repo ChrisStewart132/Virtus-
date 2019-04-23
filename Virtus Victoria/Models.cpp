@@ -1,6 +1,7 @@
 #include "Models.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
+
 #include "tiny_obj_loader.h"
 
 Models::Models(unitType* _unitTypeArray,const uint32_t _unitTypeCount)
@@ -22,10 +23,11 @@ void Models::loadModelType(std::string MODEL_PATH, uint32_t _index)
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
+	std::string warn;
 	std::string err;
 
 	
-	if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, MODEL_PATH.c_str())) {
+	if (!tinyobj::LoadObj(&attrib, &shapes, &materials,&warn, &err, MODEL_PATH.c_str())) {
 		throw std::runtime_error(err);
 	}
 	
