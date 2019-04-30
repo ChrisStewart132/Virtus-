@@ -79,8 +79,11 @@ void FrameBuffer::createFrameBuffers()
 		framebufferInfo.width = setupPtr->configPtr->windowWidth;
 		framebufferInfo.height = setupPtr->configPtr->windowHeight;
 		framebufferInfo.layers = 1;
-
-		vkCreateFramebuffer(setupPtr->device, &framebufferInfo, nullptr, &swapChainFramebuffers);
+		VkResult result;
+		result = vkCreateFramebuffer(setupPtr->device, &framebufferInfo, nullptr, &swapChainFramebuffers);
+#ifdef _DEBUG
+		std::cout << result << std::endl;
+#endif
 	}
 	else {
 		std::array<VkImageView, 2> attachments = {//IMPORTANT: DEPTH IMAGE MUST ALLIGN WITH RENDERPASS DEPTH ATTACHMENT
@@ -95,8 +98,11 @@ void FrameBuffer::createFrameBuffers()
 		framebufferInfo.width = setupPtr->configPtr->windowWidth;
 		framebufferInfo.height = setupPtr->configPtr->windowHeight;
 		framebufferInfo.layers = 1;
-
-		vkCreateFramebuffer(setupPtr->device, &framebufferInfo, nullptr, &swapChainFramebuffers);
+		VkResult result;
+		result = vkCreateFramebuffer(setupPtr->device, &framebufferInfo, nullptr, &swapChainFramebuffers);
+#ifdef _DEBUG
+		std::cout << result << std::endl;
+#endif
 	}
 	
 	

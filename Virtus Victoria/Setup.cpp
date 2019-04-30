@@ -65,12 +65,19 @@ void Setup::createInstance()
 #endif
 	createInfo.enabledExtensionCount = 2;
 	createInfo.ppEnabledExtensionNames = extensionNames;
-	vkCreateInstance(&createInfo, nullptr, &instance);
+	
+	result = vkCreateInstance(&createInfo, nullptr, &instance);
+#ifdef _DEBUG
+	std::cout << result << std::endl;
+#endif
 }
 
 void Setup::createSurface()
 {
-	glfwCreateWindowSurface(instance, windowPtr, nullptr, &surface);
+	result = glfwCreateWindowSurface(instance, windowPtr, nullptr, &surface);
+#ifdef _DEBUG
+	std::cout << result << std::endl;
+#endif
 }
 
 void Setup::createDevice()
@@ -163,7 +170,10 @@ void Setup::createDevice()
 	createInfo.enabledExtensionCount = 1;
 	createInfo.ppEnabledExtensionNames = deviceExtensions;
 	createInfo.pEnabledFeatures = &deviceFeatures;
-	vkCreateDevice(physicalDevice, &createInfo, nullptr, &device);//device
+	result=vkCreateDevice(physicalDevice, &createInfo, nullptr, &device);//device
+#ifdef _DEBUG
+	std::cout << result << std::endl;
+#endif
 
 	vkGetDeviceQueue(device, queueFamilyIndex, 0, &queue);//queue
 }
@@ -191,10 +201,14 @@ void Setup::createSwapChain()//swapchain image imageview
 		createInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR;//VK_PRESENT_MODE_MAILBOX_KHR,VK_PRESENT_MODE_FIFO_KHR
 		createInfo.clipped = VK_TRUE;
 		createInfo.oldSwapchain = VK_NULL_HANDLE;
-		vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChains[i]);//swapchain
-
-		vkGetSwapchainImagesKHR(device, swapChains[i], &configPtr->swapChainCount, swapChainImages.data());
-
+		result=vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChains[i]);//swapchain
+#ifdef _DEBUG
+		std::cout << result << std::endl;
+#endif
+		result=vkGetSwapchainImagesKHR(device, swapChains[i], &configPtr->swapChainCount, swapChainImages.data());
+#ifdef _DEBUG
+		std::cout << result << std::endl;
+#endif
 		VkImageViewCreateInfo createInfo2 = {};
 		createInfo2.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		createInfo2.image = swapChainImages[i];
@@ -209,7 +223,10 @@ void Setup::createSwapChain()//swapchain image imageview
 		createInfo2.subresourceRange.levelCount = 1;
 		createInfo2.subresourceRange.baseArrayLayer = 0;
 		createInfo2.subresourceRange.layerCount = 1;
-		vkCreateImageView(device, &createInfo2, nullptr, swapChainImageViews.data());
+		result=vkCreateImageView(device, &createInfo2, nullptr, swapChainImageViews.data());
+#ifdef _DEBUG
+		std::cout << result << std::endl;
+#endif
 	}
 }
 
@@ -220,7 +237,10 @@ void Setup::createCommandPool()
 	poolInfo.queueFamilyIndex = 0;
 	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; // Optional
 
-	vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool);
+	result=vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool);
+#ifdef _DEBUG
+	std::cout << result << std::endl;
+#endif
 }
 
 

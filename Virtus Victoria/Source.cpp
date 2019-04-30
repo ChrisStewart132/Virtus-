@@ -52,8 +52,8 @@ int main() {
 	simpleConfig.viewWidth = simpleConfig.windowWidth;
 	simpleConfig.viewHeight = simpleConfig.windowHeight;
 	simpleConfig.swapChainCount = 1;//not implemented
-	simpleConfig.lighting = true;//frag colour green??1
-	simpleConfig.textures = 1;
+	simpleConfig.lighting = 1;//frag colour green??1
+	simpleConfig.textures = 0;
 	simpleConfig.mip = true;
 	simpleConfig.antialiasing = true;//must be false if msaa=1
 	simpleConfig.msaaSamples = VK_SAMPLE_COUNT_8_BIT;

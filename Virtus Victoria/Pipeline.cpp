@@ -193,9 +193,11 @@ void Pipeline::createGraphicsPipeline()
 	pipelineInfo.subpass = 0;
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
 	
-
-	vkCreateGraphicsPipelines(setupPtr->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline);
-
+	VkResult result;
+	result=vkCreateGraphicsPipelines(setupPtr->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline);
+#ifdef _DEBUG
+	std::cout << result << std::endl;
+#endif
 	vkDestroyShaderModule(setupPtr->device, vertShaderModule, nullptr);
 	vkDestroyShaderModule(setupPtr->device, fragShaderModule, nullptr);
 	

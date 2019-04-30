@@ -15,6 +15,7 @@
 class Setup
 {
 private:
+	VkResult result;
 	void createInstance();
 	void createSurface();
 	void createDevice();

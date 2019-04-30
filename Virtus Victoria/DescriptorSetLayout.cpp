@@ -41,6 +41,9 @@ void DescriptorSetLayout::createDescriptorSetLayout()
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());;
 	layoutInfo.pBindings = bindings.data();
-
-	vkCreateDescriptorSetLayout(setupPtr->device, &layoutInfo, nullptr, &descriptorSetLayout);
+	VkResult result;
+	result=vkCreateDescriptorSetLayout(setupPtr->device, &layoutInfo, nullptr, &descriptorSetLayout);
+#ifdef _DEBUG
+	std::cout << result << std::endl;
+#endif
 }
