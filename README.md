@@ -1,5 +1,7 @@
 # Virtus-
 
+vulkan windows32 graphics by Christopher Stewart 
+
 //requires
 //stb image library
 //tinyobjectloader
