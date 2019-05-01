@@ -45,7 +45,7 @@ TestResult.xml
 [Rr]eleasePS/
 dlldata.c
 
-# Benchmark Results
+# Benchmark Results3
 BenchmarkDotNet.Artifacts/
 
 # .NET Core
@@ -63,7 +63,7 @@ StyleCopReport.xml
 *_i.h
 *.ilk
 *.meta
-*.obj
+//*.obj
 *.iobj
 *.pch
 *.pdb
@@ -328,3 +328,5 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+/Virtus Victoria/Libraries/tinyobjloader-master/models
+/Virtus Victoria/Libraries/tinyobjloader-master/tests
