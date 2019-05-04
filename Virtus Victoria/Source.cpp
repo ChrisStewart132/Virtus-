@@ -63,7 +63,7 @@ int main() {
 	Setup setup(virtusWindow.getWindow(), &simpleConfig);
 	
 	//specify unit types
-	const uint32_t unitTypeCount = 6;//update descriptors.h unittypecount manually
+	const uint32_t unitTypeCount = 6;//update descriptors.h unittypecount manually and frag shader tex sampler array
 	unitType unitTypeArray[unitTypeCount];
 
 	unitTypeArray[0].name = "terrain";
@@ -132,7 +132,7 @@ int main() {
 	Pipeline pipelinePoint(&setup, &descriptorSetLayout, &renderPass, pipelinePointInfo);
 	pipelineVector.push_back(pipelinePoint);
 
-	Descriptors descriptors(&setup, &models, &descriptorSetLayout);//requires unit type count specified in header(for number of textures)
+	Descriptors descriptors(&setup, &models, &descriptorSetLayout);//requires unit type count specified in header(for number of textures),same with frag shader (tex sampler count)
 	FrameBuffer frameBuffer(&setup, &renderPass);
 	Renderer renderer(&setup, &descriptors, &renderPass, &frameBuffer, pipelineVector.data(), &models, &virtusWindow, &game);
 	renderer.run();

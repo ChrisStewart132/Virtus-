@@ -166,14 +166,18 @@ void Renderer::update()
 	memcpy(data, modelsPtr->vertices.data(), bufferSize);
 	vkUnmapMemory(setupPtr->device, descriptorsPtr->vertexBufferMemory);
 	//choose pipeline
+	int pipelineIndex;
 	if (windowPtr->isKeyPressed(GLFW_KEY_1)) {
-		vkCmdBindPipeline(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[1].graphicsPipeline);//line
+		pipelineIndex = 1;
+		vkCmdBindPipeline(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].graphicsPipeline);//line
 	}
 	else if (windowPtr->isKeyPressed(GLFW_KEY_2)) {
-		vkCmdBindPipeline(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[2].graphicsPipeline);//point
+		pipelineIndex = 2;
+		vkCmdBindPipeline(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].graphicsPipeline);//point
 	}
 	else {
-		vkCmdBindPipeline(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[0].graphicsPipeline);//fill
+		pipelineIndex = 0;
+		vkCmdBindPipeline(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].graphicsPipeline);//fill
 	}
 	VkDeviceSize offsets[] = { 0 };
 	vkCmdBindVertexBuffers(commandBuffers[0], 0, 1, &descriptorsPtr->vertexBuffer, offsets);
@@ -181,11 +185,11 @@ void Renderer::update()
 
 	uint32_t hitboxVertexCount = modelsPtr->unitList.size() * 36;//every unit automatically has a 36 vertex hitbox rendered 
 	textureInfo texturePushConstant;
-	vkCmdBindDescriptorSets(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr->pipelineLayout, 0, 1, &descriptorsPtr->descriptorSets[0], 0, nullptr);
+	vkCmdBindDescriptorSets(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].pipelineLayout, 0, 1, &descriptorsPtr->descriptorSets[0], 0, nullptr);
 	if (setupPtr->configPtr->textures) {
 		for (uint32_t i = 0; i < modelsPtr->unitTypeList.size(); i++) {
 			texturePushConstant.textureIndex = i;
-			vkCmdPushConstants(commandBuffers[0],pipelinePtr->pipelineLayout,VK_SHADER_STAGE_VERTEX_BIT,0,sizeof(texturePushConstant),&texturePushConstant);
+			vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout,VK_SHADER_STAGE_VERTEX_BIT,0,sizeof(texturePushConstant),&texturePushConstant);
 			//vkCmdDrawIndexed(commandBuffers[0], indices.size(), 1, 0, 0, 0);
 			for (uint32_t j = 0; j < modelsPtr->unitList.size(); j++) {//for every single unit loaded
 				if (modelsPtr->unitList[j].unitTypePtr->textureIndex == i) {
@@ -195,13 +199,13 @@ void Renderer::update()
 		}
 		if (windowPtr->isKeyPressed(GLFW_KEY_1)) {
 			texturePushConstant.textureIndex = 4;
-			vkCmdPushConstants(commandBuffers[0],pipelinePtr->pipelineLayout,VK_SHADER_STAGE_VERTEX_BIT,0,sizeof(texturePushConstant),&texturePushConstant);
+			vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout,VK_SHADER_STAGE_VERTEX_BIT,0,sizeof(texturePushConstant),&texturePushConstant);
 			vkCmdDraw(commandBuffers[0], hitboxVertexCount, 1, modelsPtr->vertices.size()-hitboxVertexCount, 0);//for every texture, 1 draw call per unit loaded
 		}		
 	}
 	else {//
 		texturePushConstant.textureIndex = 4;
-		vkCmdPushConstants(commandBuffers[0],pipelinePtr->pipelineLayout,VK_SHADER_STAGE_VERTEX_BIT,0,sizeof(texturePushConstant),&texturePushConstant);	
+		vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout,VK_SHADER_STAGE_VERTEX_BIT,0,sizeof(texturePushConstant),&texturePushConstant);
 		
 		if (windowPtr->isKeyPressed(GLFW_KEY_1)) {
 			hitboxVertexCount = 0;

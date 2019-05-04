@@ -1,7 +1,7 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(binding = 1) uniform sampler2D texSampler[10];
+layout(binding = 1) uniform sampler2D texSampler[6];
 
 layout (push_constant) uniform textureInfo {
 	int textureIndex;
@@ -13,7 +13,7 @@ layout(location = 2) in vec3 normal;
 layout(location = 3) in vec3 view;
 layout(location = 4) in vec3 light[4]; 
 layout(location = 8) in vec3 lightColour[4]; 
-layout(location = 12) in float lightIntensity[4]; 
+layout(location = 12) in vec3 lightIntensity[4]; 
 layout(location = 16) in vec3 ambient; 
 
 
@@ -30,10 +30,10 @@ void main() {
 		vec3 L = normalize(light[i]);
 		vec3 V = normalize(view);
 		vec3 R = reflect(-L,N);	
-		totalDiffuse = totalDiffuse + max(dot(N,L),0.0) * fragColor * lightColour[i];
-		totalSpecular =totalSpecular + pow(max(dot(R,V),0.0),16.0) * lightIntensity[i] * lightColour[i];	
+		totalDiffuse = totalDiffuse + (max(dot(N,L),0.0) * fragColor * lightColour[i]);
+		totalSpecular =totalSpecular + (pow(max(dot(R,V),0.0),16.0) * lightIntensity[i] * lightColour[i]);	
 	}	
-	totalDiffuse=max(totalDiffuse,0.05);
+	//totalDiffuse=max(totalDiffuse,0.02);
 
 	vec3 ambientColour = fragColor * ambient;
 	vec3 texture = fragColor*texture(texSampler[PushConstant.textureIndex], fragTexCoord).rgb;

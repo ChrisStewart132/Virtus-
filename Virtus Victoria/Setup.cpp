@@ -157,6 +157,7 @@ void Setup::createDevice()
 
 	VkPhysicalDeviceFeatures deviceFeatures = {};
 	deviceFeatures.samplerAnisotropy = VK_TRUE;
+	deviceFeatures.fillModeNonSolid = VK_TRUE;
 	if (configPtr->samepleShading) {
 		deviceFeatures.sampleRateShading = VK_TRUE;
 	}

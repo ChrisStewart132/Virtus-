@@ -196,7 +196,7 @@ void Pipeline::createGraphicsPipeline()
 	VkResult result;
 	result=vkCreateGraphicsPipelines(setupPtr->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline);
 #ifdef _DEBUG
-	std::cout << result << std::endl;
+	std::cout << "pipeline:" << result << std::endl;
 #endif
 	vkDestroyShaderModule(setupPtr->device, vertShaderModule, nullptr);
 	vkDestroyShaderModule(setupPtr->device, fragShaderModule, nullptr);

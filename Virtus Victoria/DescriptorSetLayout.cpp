@@ -31,7 +31,7 @@ void DescriptorSetLayout::createDescriptorSetLayout()
 
 	VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
 	samplerLayoutBinding.binding = 1;
-	samplerLayoutBinding.descriptorCount = 2;// modelsPtr->unitTypeList.size();//1 texture sampler per texture (1 texture per unitType)
+	samplerLayoutBinding.descriptorCount = modelsPtr->unitTypeList.size();// modelsPtr->unitTypeList.size();//1 texture sampler per texture (1 texture per unitType)
 	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 	samplerLayoutBinding.pImmutableSamplers = nullptr;

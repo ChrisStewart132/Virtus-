@@ -7,7 +7,7 @@ layout(binding = 0) uniform UniformBufferObject {
 	mat4 proj;
 	vec3 lightPosition[4];
 	vec3 lightColour[4];
-	float lightIntensity[4];
+	vec3 lightIntensity[4];
 	vec3 ambient;
 } ubo;
 
@@ -24,7 +24,7 @@ layout(location = 2) out vec3 fragNormal;
 layout(location = 3) out vec3 fragView;
 layout(location = 4) out vec3 fragLight[4];
 layout(location = 8) out vec3 fragLightColour[4];
-layout(location = 12) out float fragLightIntensity[4];
+layout(location = 12) out vec3 fragLightIntensity[4];
 layout(location = 16) out vec3 fragAmbient;
 
 out gl_PerVertex {
