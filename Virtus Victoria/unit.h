@@ -296,6 +296,12 @@ struct hitbox {
 				if (box1.max.x > box2.min.x && box1.min.x < box2.max.x) {
 					return true;
 				}
+				else {
+					return false;
+				}
+			}
+			else {
+				return false;
 			}
 		}
 		else {

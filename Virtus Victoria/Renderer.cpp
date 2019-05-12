@@ -285,30 +285,38 @@ void Renderer::moveUnits()
 
 	glm::vec3 enemy = modelsPtr->unitList[1].pos;
 	if (1) {//wasd inputs
-		const float n = 1.0 * dt;
+		const float n = 144.0 * dt;
 		if (windowPtr->isKeyPressed(GLFW_KEY_W)) {
-			modelsPtr->unitList[1].move({ 0.0, 0.0, -n });
+			//modelsPtr->unitList[1].move({ 0.0, 0.0, -n });
+			modelsPtr->unitList[1].v += glm::vec3(0.0, 0.0, -n);
 		}
 		if (windowPtr->isKeyPressed(GLFW_KEY_S)) {
-			modelsPtr->unitList[1].move({ 0.0, 0.0, n });
+			//modelsPtr->unitList[1].move({ 0.0, 0.0, n });
+			modelsPtr->unitList[1].v += glm::vec3(0.0, 0.0, n);
 		}
 		if (windowPtr->isKeyPressed(GLFW_KEY_A)) {
-			modelsPtr->unitList[1].move({ -n, 0.0, 0.0f });
+			//modelsPtr->unitList[1].move({ -n, 0.0, 0.0f });
+			modelsPtr->unitList[1].v += glm::vec3(-n, 0.0, 0);
 		}
 		if (windowPtr->isKeyPressed(GLFW_KEY_D)) {
-			modelsPtr->unitList[1].move({ n, 0.0, 0.0f });
+			//modelsPtr->unitList[1].move({ n, 0.0, 0.0f });
+			modelsPtr->unitList[1].v += glm::vec3(n, 0.0, 0);
 		}
 		if (windowPtr->isKeyPressed(GLFW_KEY_Q)) {
-			modelsPtr->unitList[1].move({ 0.0,n, 0.0f });
+			//modelsPtr->unitList[1].move({ 0.0,n, 0.0f });
+			modelsPtr->unitList[1].v += glm::vec3(0.0, n, 0);
 		}
 		if (windowPtr->isKeyPressed(GLFW_KEY_E)) {
-			modelsPtr->unitList[1].move({ 0.0, -n, 0.0f });
+			//modelsPtr->unitList[1].move({ 0.0, -n, 0.0f });
+			modelsPtr->unitList[1].v += glm::vec3(0.0, -n, 0);
 		}
 		if (windowPtr->isKeyPressed(GLFW_KEY_Z)) {
-			modelsPtr->unitList[1].turn(modelsPtr->vertices, -n, 'x');
+			//modelsPtr->unitList[1].turn(modelsPtr->vertices, -n, 'x');
+			modelsPtr->unitList[1].v += glm::vec3(0.0, -n,0.0 );
 		}
 		if (windowPtr->isKeyPressed(GLFW_KEY_C)) {
-			modelsPtr->unitList[1].turn(modelsPtr->vertices, n, 'x');
+			//modelsPtr->unitList[1].turn(modelsPtr->vertices, n, 'x');
+			modelsPtr->unitList[1].v += glm::vec3(0.0, n,0.0);
 		}
 
 		if (windowPtr->isKeyPressed(GLFW_KEY_SPACE)) {
@@ -350,9 +358,10 @@ void Renderer::moveUnits()
 	}
 	*/
 
-	
-	
-	for (uint32_t i = 1; i < modelsPtr->unitList.size(); i++) {	
+	//printf("z:3vs1: %f:%f\n", modelsPtr->unitList[3].hitbox.max.z, modelsPtr->unitList[1].hitbox.min.z);
+	//printf("velocity: %f,%f,%f\n", modelsPtr->unitList[1].v.x, modelsPtr->unitList[1].v.y, modelsPtr->unitList[1].v.z);
+
+	for (uint32_t i = 1; i < modelsPtr->unitList.size(); i++) {	//unitList[0] = terrain
 		
 		modelsPtr->unitList[i].hitbox.calculateHitbox(modelsPtr->vertices, modelsPtr->unitList[i].unitTypePtr->vertices.size(), modelsPtr->unitList[i].vertexStart);//re-calc max/min
 		modelsPtr->unitList[i].hitbox.updateCubeMesh();//re-calc cube vertices from unit max/min
@@ -361,8 +370,22 @@ void Renderer::moveUnits()
 		if (!modelsPtr->unitList[i].antiGravity) {//if unit is not antiGravity (resisting gravity)
 			physics.force(modelsPtr->unitList[i]);//gravity acting on all units (g/fps
 		}
-					
-		physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[0]);//check collision with ground unit
+		
+		physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[0],true);//check collision with ground unit
+		if (i == 1) {//bullet
+			physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[3]);//t62 and wasd bullet
+		}
+
+		for (int p = 0; p < gamePtr->sentryList[0].gunPtr->ammo;p++) {
+			if (i == gamePtr->sentryList[0].projectileUnitListIndex+p) {
+				physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[3]);//check sentry[0] projectiles against t62 
+			}
+		}
+		for (uint32_t j = 1; j < modelsPtr->unitList.size(); j++) {
+			if (i != j) {
+				//physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[j]);
+			}
+		}
 
 		if (i != 3) {
 			//physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[3]);//check collision with t62

@@ -1,6 +1,7 @@
 #pragma once
 #include "unit.h"
 #include "glm\glm.hpp"
+#include <algorithm>//std::min
 
 class Physics
 {
@@ -16,6 +17,6 @@ public:
 	~Physics();
 
 	void force(unit& _unit);
-	void collision(unit& _unit, unit& _unit2);
+	void collision(unit& _unit, unit& _unit2,bool groundCollision=false);
 };
 

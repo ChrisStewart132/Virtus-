@@ -47,8 +47,8 @@ int main() {
 
 
 	config simpleConfig;
-	simpleConfig.windowWidth = 1920.0f/1.2f;
-	simpleConfig.windowHeight = 1061.0f / 1.2f;
+	simpleConfig.windowWidth = 1920.0f/2.f;
+	simpleConfig.windowHeight = 1061.0f / 2.f;
 	simpleConfig.viewWidth = simpleConfig.windowWidth;
 	simpleConfig.viewHeight = simpleConfig.windowHeight;
 	simpleConfig.swapChainCount = 1;//not implemented

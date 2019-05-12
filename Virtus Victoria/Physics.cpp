@@ -74,7 +74,7 @@ void Physics::force(unit & _unit)
 	
 }
 
-void Physics::collision(unit & _unit, unit & _unit2)
+void Physics::collision(unit & _unit, unit & _unit2,bool groundCollision)
 {
 	/*
 	glm::vec3 unitMax, unitMin, unit2Max, unit2Min;
@@ -111,33 +111,55 @@ void Physics::collision(unit & _unit, unit & _unit2)
 	if (_unit.hitbox.hitboxCollision(_unit.hitbox, _unit2.hitbox)) {//_unit.hitbox.hitboxCollision(_unit.hitbox, _unit2.hitbox)//_unit.hitbox.min.y<=_unit2.hitbox.max.y
 		//if collision between both unit axis aligned hitboxes (calculated only on initial orientation)
 		//potential collision between 2 units																
-		//impulse = ft = m delta(v) where t is the time to decelerate to 0m/s during the collision															
-		float m1, v1i, m2, v2i, p1i, p2i, v1f, v2f;
+		//impulse = ft = m delta(v) where t is the time to decelerate to 0m/s during the collision	
+		float elasticity = 0.333f;//fraction of energy conserved during collision (e.g. bouncy ball high elasticity, lead balls energy is less maleable and converted to damage)
+		glm::vec3 penetration;
+		
+		float m1, m2, p1i, p2i;
+		glm::vec3 v1i, v2i, v1f, v2f;
 		m1 = _unit.m;
 		m2 = _unit2.m;
-		v1i = _unit.v.y;
-		v2i = _unit2.v.y;
-		p1i = momentum(m1, v1i);		
-		v2f = ((m1*v1i) - (m1*v2i) + p1i) / (m1 + m2);
-		v1f = v2i + v2f - v1i;	
-		float elasticity = 0.333f;//fraction of energy conserved during collision (e.g. bouncy ball high elasticity, lead balls energy is less maleable and converted to damage)
-		float penetration = _unit2.hitbox.max.y - _unit.hitbox.min.y;
-		_unit.move(glm::vec3(0, penetration, 0));//seperate object from ground to prevent sinking
-		_unit.v.y = v1f*elasticity;
+		//y
+		v1i.y = _unit.v.y;
+		v2i.y = _unit2.v.y;
+		p1i = momentum(m1, v1i.y);		
+		v2f.y = ((m1*v1i.y) - (m1*v2i.y) + p1i) / (m1 + m2);
+		v1f.y = v2i.y + v2f.y - v1i.y;	
+		_unit.v.y = v1f.y*elasticity;
 		//z
-		v1i = _unit.v.z;
-		v2i = _unit2.v.z;
-		p1i = momentum(m1, v1i);
-		v2f = ((m1*v1i) - (m1*v2i) + p1i) / (m1 + m2);
-		v1f = v2i + v2f - v1i;
-		_unit.v.z = -v1f*elasticity;
+		v1i.z = _unit.v.z;
+		v2i.z = _unit2.v.z;
+		p1i = momentum(m1, v1i.z);
+		v2f.z = ((m1*v1i.z) - (m1*v2i.z) + p1i) / (m1 + m2);
+		v1f.z = v2i.z + v2f.z - v1i.z;
+		_unit.v.z = v1f.z *elasticity;//if moving -z, bounces back +z, but when +z bounces -z, needs to be fixed TODO
 		//x
-		v1i = _unit.v.x;
-		v2i = _unit2.v.x;
-		p1i = momentum(m1, v1i);
-		v2f = ((m1*v1i) - (m1*v2i) + p1i) / (m1 + m2);
-		v1f = v2i + v2f - v1i;
-		_unit.v.x = -v1f*elasticity;
+		v1i.x = _unit.v.x;
+		v2i.x = _unit2.v.x;
+		p1i = momentum(m1, v1i.x);
+		v2f.x = ((m1*v1i.x) - (m1*v2i.x) + p1i) / (m1 + m2);
+		v1f.x = v2i.x + v2f.x - v1i.x;
+		_unit.v.x = v1f.x *elasticity;//needs to be fixed TODO
+
+		penetration.x = _unit2.hitbox.max.x - _unit.hitbox.min.x;
+		penetration.y = _unit2.hitbox.max.y - _unit.hitbox.min.y;
+		penetration.z = _unit2.hitbox.max.z - _unit.hitbox.min.z;
+		glm::vec3 penetrationMag;
+		penetrationMag.x = _unit.calcMagnitude(penetration.x);
+		penetrationMag.y = _unit.calcMagnitude(penetration.y);
+		penetrationMag.z = _unit.calcMagnitude(penetration.z);
+		float minPenetration;
+		minPenetration = std::min(penetrationMag.x, penetrationMag.y);
+		minPenetration = std::min(minPenetration, penetrationMag.z);
+		if (minPenetration == penetrationMag.x) {
+			_unit.move(glm::vec3(penetration.x, 0, 0));//seperate object from other
+		}
+		else if (minPenetration == penetrationMag.y) {
+			_unit.move(glm::vec3(0, penetration.y, 0));//seperate object from other
+		}
+		else if (minPenetration == penetrationMag.z) {
+			_unit.move(glm::vec3(0, 0, penetration.z));//seperate object from other
+		}//need to base penetration correction on unit velocity , e.g. move back from same velocity vector e.g. z
 	}
 }
 
