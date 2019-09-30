@@ -245,15 +245,15 @@ void Renderer::updateUniformBuffer()
 {	
 	ubo.model = glm::mat4();
 	gamePtr->moveCamera(mousePosX, mousePosY, cameraPosition, cameraPoint);
-	ubo.view = glm::lookAt(cameraPosition, cameraPoint, glm::vec3(0.0f, 1.0f, 0.0f));//eye,centre,up
-	//ubo.view = gamePtr->fpsCamera(mousePosX, mousePosY, cameraPosition, cameraPoint);
+	//ubo.view = glm::lookAt(cameraPosition, cameraPoint, glm::vec3(0.0f, 1.0f, 0.0f));//eye,centre,up
+	ubo.view = glm::lookAt(glm::vec3(0, 0, 0), glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
 	ubo.proj = glm::perspective(glm::radians(70.0f), setupPtr->configPtr->windowWidth / (float)setupPtr->configPtr->windowHeight, 0.1f, 1000.0f);
-	ubo.proj[1][1] *= -1;
+	ubo.proj[1][1] *= -1;// makes the y axis projected to the same as vulkans
 	//ubo.lightPosition = cameraPosition;//lightPos;//cameraPosition;
 	light sun;
-	sun.pos = { 0,1000,0 };
-	sun.colour = glm::vec3(0.3f,0.3f,0.0f);
-	sun.intensity = glm::vec3(0.3f);
+	sun.pos = { 200,200,-200 };
+	sun.colour = glm::vec3(0.0f, 0.0f, 0.5f);
+	sun.intensity = glm::vec3(0.5f);
 	for (uint32_t i = 0; i < MAX_LIGHTS; i++) {//only shaders first lights inside light vector, sort for closes position todo
 		if (i < gamePtr->lights.size()-1) {
 			ubo.lightPosition[i] = gamePtr->lights[i].pos;
@@ -266,7 +266,7 @@ void Renderer::updateUniformBuffer()
 			ubo.lightIntensity[i] = sun.intensity;
 		}
 	}
-	ubo.ambient = glm::vec3(0.1f);
+	ubo.ambient = glm::vec3(0.5f);
 	if (!setupPtr->configPtr->lighting) {
 		ubo.ambient = glm::vec3(1.0f);
 	}
@@ -281,11 +281,30 @@ void Renderer::updateUniformBuffer()
 
 void Renderer::moveUnits()
 {
+	//mouse point
+	double mouseNormalizedX = (2.0f * mousePosX) / setupPtr->configPtr->windowWidth - 1.0f;
+	double mouseNormalizedY = 1.0f - (2.0f * mousePosY) / setupPtr->configPtr->windowHeight;
+	glm::vec2 mouseNormalized(mouseNormalizedX, mouseNormalizedY);
+	//printf("x:%f,y:%f\n", mouseNormalized.x, mouseNormalized.y);//cartesian coordinates (0,0 = mid, pos x is right, pos y is up)
+	glm::vec3 mouseEye =inverse(ubo.proj) * glm::vec4(mouseNormalized,-1.0f, 1.0f);
+	//ubo.view = glm::mat4(1.0f);
+	ubo.view[1][1] *= -1;//vulkan -y is up, this is corrected here and in ubo update function
+	glm::vec3 mouseWorld = inverse(ubo.view) * glm::vec4(mouseEye, 1.0f);
+	mouseWorld = normalize(mouseWorld);
+
+	printf("x:%f,y:%f,z:%f\n", mouseWorld.x, mouseWorld.y, mouseWorld.z);
+	glm::vec3 test;
+	test = mouseWorld * glm::vec3(2);
+	if (windowPtr->isMousePressed(1)) {
+		modelsPtr->unitList[1].move(-modelsPtr->unitList[1].pos);//move back to 0,0
+		modelsPtr->unitList[1].move(test);
+	}
+
 	//double fps = windowPtr->getfps();
 
 	glm::vec3 enemy = modelsPtr->unitList[1].pos;
 	if (1) {//wasd inputs
-		const float n = 144.0 * dt;
+		const float n = 60.0f * dt;
 		if (windowPtr->isKeyPressed(GLFW_KEY_W)) {
 			//modelsPtr->unitList[1].move({ 0.0, 0.0, -n });
 			modelsPtr->unitList[1].v += glm::vec3(0.0, 0.0, -n);
@@ -373,12 +392,12 @@ void Renderer::moveUnits()
 		
 		physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[0],true);//check collision with ground unit
 		if (i == 1) {//bullet
-			physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[3]);//t62 and wasd bullet
+			//physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[3]);//t62 and wasd bullet
 		}
 
 		for (int p = 0; p < gamePtr->sentryList[0].gunPtr->ammo;p++) {
 			if (i == gamePtr->sentryList[0].projectileUnitListIndex+p) {
-				physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[3]);//check sentry[0] projectiles against t62 
+				//physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[3]);//check sentry[0] projectiles against t62 
 			}
 		}
 		for (uint32_t j = 1; j < modelsPtr->unitList.size(); j++) {
@@ -393,7 +412,12 @@ void Renderer::moveUnits()
 
 		if (windowPtr->isKeyPressed(GLFW_KEY_7)) {
 			if (!modelsPtr->unitList[i].antiGravity) {
-				modelsPtr->unitList[i].v.y += 1;
+				modelsPtr->unitList[i].v.y += 1 + (i * 0.1f);
+			}
+		}
+		else if (windowPtr->isKeyPressed(GLFW_KEY_8)) {
+			if (!modelsPtr->unitList[i].antiGravity) {
+				modelsPtr->unitList[i].v.y -= 1 + (i * 0.1f);
 			}
 		}
 

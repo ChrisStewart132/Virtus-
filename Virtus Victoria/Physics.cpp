@@ -132,14 +132,26 @@ void Physics::collision(unit & _unit, unit & _unit2,bool groundCollision)
 		p1i = momentum(m1, v1i.z);
 		v2f.z = ((m1*v1i.z) - (m1*v2i.z) + p1i) / (m1 + m2);
 		v1f.z = v2i.z + v2f.z - v1i.z;
-		_unit.v.z = v1f.z *elasticity;//if moving -z, bounces back +z, but when +z bounces -z, needs to be fixed TODO
+		
+		if (_unit.hitbox.min.y > _unit2.hitbox.max.y) {//deflection (1 above 2)
+			//_unit.v.z = -v1f.z * elasticity;
+		}
+		else if(_unit.hitbox.min.x - (_unit.v.x / 60.0f) > _unit2.hitbox.max.x) {//deflection
+			//_unit.v.z = -v1f.z * elasticity;
+		}
+		else {//collision
+			//_unit.v.z = -v1f.z * elasticity;
+		}
+		
+		_unit.v.z = -v1f.z * elasticity;
+		//_unit.v.z = v1f.z *elasticity;//if moving -z, bounces back +z, but when +z bounces -z, needs to be fixed TODO
 		//x
 		v1i.x = _unit.v.x;
 		v2i.x = _unit2.v.x;
 		p1i = momentum(m1, v1i.x);
 		v2f.x = ((m1*v1i.x) - (m1*v2i.x) + p1i) / (m1 + m2);
 		v1f.x = v2i.x + v2f.x - v1i.x;
-		_unit.v.x = v1f.x *elasticity;//needs to be fixed TODO
+		_unit.v.x = -v1f.x*elasticity;//needs to be fixed TODO
 
 		penetration.x = _unit2.hitbox.max.x - _unit.hitbox.min.x;
 		penetration.y = _unit2.hitbox.max.y - _unit.hitbox.min.y;

@@ -35,6 +35,12 @@
 //structs
 #include "config.h"
 
+//asset importing
+struct asset {
+	const char* name;
+	float mass;
+};
+
 //vulkan SDK 1.0.77.0
 int main() {
 	//notes
@@ -47,8 +53,8 @@ int main() {
 
 
 	config simpleConfig;
-	simpleConfig.windowWidth = 1920.0f/2.f;
-	simpleConfig.windowHeight = 1061.0f / 2.f;
+	simpleConfig.windowWidth = 1920.0f/1.f;
+	simpleConfig.windowHeight = 1061.0f / 1.f;
 	simpleConfig.viewWidth = simpleConfig.windowWidth;
 	simpleConfig.viewHeight = simpleConfig.windowHeight;
 	simpleConfig.swapChainCount = 1;//not implemented
@@ -65,8 +71,22 @@ int main() {
 	//specify unit types
 	const uint32_t unitTypeCount = 6;//update descriptors.h unittypecount manually and frag shader tex sampler array
 	unitType unitTypeArray[unitTypeCount];
+	std::vector<asset> assets;
+	assets.push_back({ "terrain",99999999.0f });
+	assets.push_back({ "20mm round",0.1f });
+	assets.push_back({ "20mm gun",5 });
+	assets.push_back({ "turret",10 });
+	assets.push_back({ "pyramid",999999 });
+	assets.push_back({ "t62",30000 });
+	for (int i = 0; i < unitTypeCount; i++) {
+		unitTypeArray[i].name = assets[i].name;
+		unitTypeArray[i].modelPath = "Models/" + unitTypeArray[i].name + ".obj";
+		unitTypeArray[i].texturePath = "Textures/" + unitTypeArray[i].name + ".jpg";
+		unitTypeArray[i].textureIndex = i;
+		unitTypeArray[i].mass = assets[i].mass;
+	}
 
-	unitTypeArray[0].name = "terrain";
+	/*unitTypeArray[0].name = "terrain";
 	unitTypeArray[0].modelPath = "Models/" + unitTypeArray[0].name + ".obj";
 	unitTypeArray[0].texturePath = "Textures/" + unitTypeArray[0].name + ".jpg";
 	unitTypeArray[0].textureIndex = 0;
@@ -100,7 +120,7 @@ int main() {
 	unitTypeArray[5].modelPath = "Models/" + unitTypeArray[5].name + ".obj";
 	unitTypeArray[5].texturePath = "Textures/" + unitTypeArray[5].name + ".jpg";
 	unitTypeArray[5].textureIndex = 5;
-	unitTypeArray[5].mass = 30000;
+	unitTypeArray[5].mass = 30000;*/
 
 	//load all models into unitTypes and load main vertex buffer with units
 	Models models(unitTypeArray, unitTypeCount);	

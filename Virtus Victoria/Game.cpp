@@ -29,26 +29,28 @@ Game::Game(Window* _windowPtr, Models* _modelsptr)
 	turretTypeList.push_back(t20mm);
 
 	//lights (max 4 renderable)
-	float c = 0.3f;
+	float c = 0.0f;
+	float intensityTemp = 0.0f;
+	float posTemp = -100.0f;
 	light light1;
-	light1.pos = glm::vec3(100.0f, 300.0f, -100.0f);
+	light1.pos = glm::vec3(posTemp, posTemp, -posTemp);
 	light1.colour = glm::vec3(c, c, c);
-	light1.intensity = glm::vec3(1.0f);
+	light1.intensity = glm::vec3(intensityTemp);
 	createLight(light1);
 	light light2;
-	light2.pos = glm::vec3(-100.0f, 100.0f, 0.0f);
+	light2.pos = glm::vec3(-posTemp, posTemp, posTemp);
 	light2.colour = glm::vec3(c, c, c);
-	light1.intensity = glm::vec3(1.0f);
+	light1.intensity = glm::vec3(intensityTemp);
 	createLight(light2);
 	light light3;
-	light3.pos = glm::vec3(0.0f, 100.0f, -100.0f);
+	light3.pos = glm::vec3(posTemp, posTemp, -posTemp);
 	light3.colour = glm::vec3(c, c, c);
-	light1.intensity = glm::vec3(1.0f);
+	light1.intensity = glm::vec3(intensityTemp);
 	createLight(light3);
 	light light4;
-	light4.pos = glm::vec3(0.0f, 100.0f, 100.0f);
+	light4.pos = glm::vec3(posTemp, posTemp, posTemp);
 	light4.colour = glm::vec3(c, c, c);
-	light1.intensity = glm::vec3(1.0f);
+	light1.intensity = glm::vec3(intensityTemp);
 	createLight(light4);
 }
 

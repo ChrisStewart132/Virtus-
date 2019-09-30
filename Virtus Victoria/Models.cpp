@@ -156,9 +156,14 @@ void Models::loadModels()
 	unitList[1].move(glm::vec3(0.0f, 10.0f, -15.0f));
 	
 	loadModel("pyramid");
-	unitList[2].move(glm::vec3(200.0f, 0.0f, -200.0f));
-	loadModel("t62");
-	unitList[3].move(glm::vec3(0.0f, 10.0f, -20.0f));
-	
+	unitList[2].move(glm::vec3(-400.0f, 0.0f, -200.0f));
+
+	const uint32_t c = 5;
+	for (int i = 0; i < c; i++) {
+		for (int j = 0; j < c; j++) {
+			loadModel("t62");
+			unitList[3 + (i* c) + j].move(glm::vec3(-20.0f - (j * 4), 20.0f, -20.0f - (i * 8)));
+		}
+	}
 }
 

@@ -17,7 +17,7 @@ class Renderer
 {
 private:
 	//double t = 0;
-	double dt = 1.0 / 144.0;
+	double dt = 1.0 / 60.0f;
 	
 	sonar sonar;
 
