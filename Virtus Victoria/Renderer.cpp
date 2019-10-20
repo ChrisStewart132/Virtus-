@@ -245,8 +245,8 @@ void Renderer::updateUniformBuffer()
 {	
 	ubo.model = glm::mat4();
 	gamePtr->moveCamera(mousePosX, mousePosY, cameraPosition, cameraPoint);
-	//ubo.view = glm::lookAt(cameraPosition, cameraPoint, glm::vec3(0.0f, 1.0f, 0.0f));//eye,centre,up
-	ubo.view = glm::lookAt(glm::vec3(0, 0, 0), glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
+	ubo.view = glm::lookAt(cameraPosition, cameraPoint, glm::vec3(0.0f, 1.0f, 0.0f));//eye,centre,up
+	//ubo.view = glm::lookAt(glm::vec3(2, 0, 0), glm::vec3(2, 0, -1), glm::vec3(0, 1, 0));
 	ubo.proj = glm::perspective(glm::radians(70.0f), setupPtr->configPtr->windowWidth / (float)setupPtr->configPtr->windowHeight, 0.1f, 1000.0f);
 	ubo.proj[1][1] *= -1;// makes the y axis projected to the same as vulkans
 	//ubo.lightPosition = cameraPosition;//lightPos;//cameraPosition;
@@ -284,17 +284,19 @@ void Renderer::moveUnits()
 	//mouse point
 	double mouseNormalizedX = (2.0f * mousePosX) / setupPtr->configPtr->windowWidth - 1.0f;
 	double mouseNormalizedY = 1.0f - (2.0f * mousePosY) / setupPtr->configPtr->windowHeight;
-	glm::vec2 mouseNormalized(mouseNormalizedX, mouseNormalizedY);
+	glm::vec2 mouseNormalized(mouseNormalizedX, -mouseNormalizedY);//vulkan uses -y as up so inverting y axis from cortesian mouse coordinates, can be done in ubo.view[1][1]*=-1
 	//printf("x:%f,y:%f\n", mouseNormalized.x, mouseNormalized.y);//cartesian coordinates (0,0 = mid, pos x is right, pos y is up)
 	glm::vec3 mouseEye =inverse(ubo.proj) * glm::vec4(mouseNormalized,-1.0f, 1.0f);
-	//ubo.view = glm::mat4(1.0f);
-	ubo.view[1][1] *= -1;//vulkan -y is up, this is corrected here and in ubo update function
-	glm::vec3 mouseWorld = inverse(ubo.view) * glm::vec4(mouseEye, 1.0f);
+	//ubo.view[1][1] *= -1;//vulkan -y is up, this is corrected here and in ubo update function
+	glm::vec3 mouseWorld = inverse(ubo.view) * glm::vec4(mouseEye, 0.0f);
 	mouseWorld = normalize(mouseWorld);
+	//mouseWorld.z *= -1;
+	//mouseWorld.x *= -1;
+	//mouseWorld.y *= -1;
 
 	printf("x:%f,y:%f,z:%f\n", mouseWorld.x, mouseWorld.y, mouseWorld.z);
 	glm::vec3 test;
-	test = mouseWorld * glm::vec3(2);
+	test = cameraPosition+(mouseWorld * glm::vec3(20));
 	if (windowPtr->isMousePressed(1)) {
 		modelsPtr->unitList[1].move(-modelsPtr->unitList[1].pos);//move back to 0,0
 		modelsPtr->unitList[1].move(test);
@@ -435,6 +437,6 @@ void Renderer::moveUnits()
 	modelsPtr->transformUnits();
 
 	if (windowPtr->isKeyPressed(GLFW_KEY_6)) {
-		Sleep(20);//slow motion
+		Sleep(100);//slow motion
 	}
 }

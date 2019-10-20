@@ -136,7 +136,7 @@ void Physics::collision(unit & _unit, unit & _unit2,bool groundCollision)
 		if (_unit.hitbox.min.y > _unit2.hitbox.max.y) {//deflection (1 above 2)
 			//_unit.v.z = -v1f.z * elasticity;
 		}
-		else if(_unit.hitbox.min.x - (_unit.v.x / 60.0f) > _unit2.hitbox.max.x) {//deflection
+		else if(_unit.hitbox.min.x - (_unit.v.x / 144.0f) > _unit2.hitbox.max.x) {//deflection
 			//_unit.v.z = -v1f.z * elasticity;
 		}
 		else {//collision

@@ -161,11 +161,11 @@ void Game::rotate(glm::vec3& _vector, float _angle, char axis, glm::vec3 centreD
 
 void Game::moveCamera(double mousePosX, double mousePosY, glm::vec3 &cameraPosition, glm::vec3 &cameraPoint)
 {
-	float width = 1920;
-	float height = 1080;
+	int width = 1920;
+	int height = 1080;
 	float CameraSpeedFactor = 1000.0f;//1000-0
-	float cameraAreaPercentage = 8.0f;
-	float wasdSpeed = 0.0f;
+	float cameraAreaPercentage = 10.0f;
+	float wasdSpeed = 10.0f;
 	if (windowPtr->isMousePressed(GLFW_MOUSE_BUTTON_3)) {
 		if (!rotatingCamera) {
 			rotatingCamera = true;

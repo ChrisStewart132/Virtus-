@@ -1,5 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.h>
+#include <future>//async
 #include "sonar.h"
 #include "Setup.h"
 #include "Descriptors.h"
@@ -10,6 +11,7 @@
 #include "Game.h"
 #include "Physics.h"
 
+
 const uint32_t commandBufferCount = 1;
 
 //
@@ -17,7 +19,7 @@ class Renderer
 {
 private:
 	//double t = 0;
-	double dt = 1.0 / 60.0f;
+	double dt = 1.0 / 144.0f;
 	
 	sonar sonar;
 
@@ -34,7 +36,7 @@ private:
 	UniformBufferObject ubo;
 
 	double mousePosX, mousePosY;
-	glm::vec3 cameraPosition = { 0.0f,2.0f,3.0f };
+	glm::vec3 cameraPosition = { 0.0f,2.0f,10.0f };
 	glm::vec3 cameraPoint = { 0.0f,2.0f,0.0f };
 
 	
