@@ -29,26 +29,26 @@ Game::Game(Window* _windowPtr, Models* _modelsptr)
 	turretTypeList.push_back(t20mm);
 
 	//lights (max 4 renderable)
-	float c = 0.0f;
-	float intensityTemp = 0.0f;
-	float posTemp = -100.0f;
+	float c = 0.1f;
+	float intensityTemp = 0.05f;
+	glm::vec3 posTemp = glm::vec3(0, 2, 0);
 	light light1;
-	light1.pos = glm::vec3(posTemp, posTemp, -posTemp);
+	light1.pos = posTemp;
 	light1.colour = glm::vec3(c, c, c);
 	light1.intensity = glm::vec3(intensityTemp);
 	createLight(light1);
 	light light2;
-	light2.pos = glm::vec3(-posTemp, posTemp, posTemp);
-	light2.colour = glm::vec3(c, c, c);
+	light2.pos = posTemp;
+	light2.colour = glm::vec3(1, c, c);
 	light1.intensity = glm::vec3(intensityTemp);
 	createLight(light2);
 	light light3;
-	light3.pos = glm::vec3(posTemp, posTemp, -posTemp);
+	light3.pos = posTemp;
 	light3.colour = glm::vec3(c, c, c);
 	light1.intensity = glm::vec3(intensityTemp);
 	createLight(light3);
 	light light4;
-	light4.pos = glm::vec3(posTemp, posTemp, posTemp);
+	light4.pos = posTemp;
 	light4.colour = glm::vec3(c, c, c);
 	light1.intensity = glm::vec3(intensityTemp);
 	createLight(light4);
@@ -127,7 +127,7 @@ void Game::aimSentry(sentry _sentry, glm::vec3 _enemy)
 void Game::shootSentry(sentry _sentry)
 {
 	for (int i = 0; i < _sentry.gunPtr->ammo; i++) {	
-			if (modelsPtr->unitList[_sentry.projectileUnitListIndex + i].v == glm::vec3(0.0f)) {
+			if (modelsPtr->unitList[_sentry.projectileUnitListIndex + i].v == glm::vec3(0.0f)) {//todo need to specify available ammo
 				modelsPtr->unitList[_sentry.projectileUnitListIndex + i].v = modelsPtr->unitList[_sentry.projectileUnitListIndex + i].getDirection()*glm::vec3(100.0f);
 				modelsPtr->unitList[_sentry.projectileUnitListIndex + i].antiGravity = false;
 				break;
@@ -165,7 +165,7 @@ void Game::moveCamera(double mousePosX, double mousePosY, glm::vec3 &cameraPosit
 	int height = 1080;
 	float CameraSpeedFactor = 1000.0f;//1000-0
 	float cameraAreaPercentage = 10.0f;
-	float wasdSpeed = 10.0f;
+	float wasdSpeed = 0.0f;
 	if (windowPtr->isMousePressed(GLFW_MOUSE_BUTTON_3)) {
 		if (!rotatingCamera) {
 			rotatingCamera = true;

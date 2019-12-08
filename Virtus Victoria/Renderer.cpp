@@ -189,7 +189,7 @@ void Renderer::update()
 	if (setupPtr->configPtr->textures) {
 		for (uint32_t i = 0; i < modelsPtr->unitTypeList.size(); i++) {
 			texturePushConstant.textureIndex = i;
-			vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout,VK_SHADER_STAGE_VERTEX_BIT,0,sizeof(texturePushConstant),&texturePushConstant);
+			vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,0,sizeof(texturePushConstant),&texturePushConstant);
 			//vkCmdDrawIndexed(commandBuffers[0], indices.size(), 1, 0, 0, 0);
 			for (uint32_t j = 0; j < modelsPtr->unitList.size(); j++) {//for every single unit loaded
 				if (modelsPtr->unitList[j].unitTypePtr->textureIndex == i) {
@@ -199,18 +199,18 @@ void Renderer::update()
 		}
 		if (windowPtr->isKeyPressed(GLFW_KEY_1)) {
 			texturePushConstant.textureIndex = 4;
-			vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout,VK_SHADER_STAGE_VERTEX_BIT,0,sizeof(texturePushConstant),&texturePushConstant);
+			vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,0,sizeof(texturePushConstant),&texturePushConstant);//or VK_SHADER_STAGE_VERTEX_BIT if push uses this flag
 			vkCmdDraw(commandBuffers[0], hitboxVertexCount, 1, modelsPtr->vertices.size()-hitboxVertexCount, 0);//for every texture, 1 draw call per unit loaded
 		}		
 	}
 	else {//
 		texturePushConstant.textureIndex = 4;
-		vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout,VK_SHADER_STAGE_VERTEX_BIT,0,sizeof(texturePushConstant),&texturePushConstant);
+		vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,0,sizeof(texturePushConstant),&texturePushConstant);
 		
 		if (windowPtr->isKeyPressed(GLFW_KEY_1)) {
 			hitboxVertexCount = 0;
 		}
-		vkCmdDraw(commandBuffers[0], modelsPtr->vertices.size()-hitboxVertexCount, 1, 0, 0);//for every texture, 1 draw call per unit loaded	
+		vkCmdDraw(commandBuffers[0], modelsPtr->vertices.size()-hitboxVertexCount, 1, 0, 0);//1 draw call for all units
 	}
 	vkCmdEndRenderPass(commandBuffers[0]);
 	vkEndCommandBuffer(commandBuffers[0]);
@@ -233,8 +233,7 @@ void Renderer::run()
 		glfwPollEvents();	
 		input();		
 		drawFrame();	
-		//float fps = windowPtr->getfps();
-		//printf("fps: %f\n", fps);
+		float fps = windowPtr->getfps();	
 	}
 	vkDeviceWaitIdle(setupPtr->device);
 	glfwDestroyWindow(setupPtr->windowPtr);
@@ -251,22 +250,26 @@ void Renderer::updateUniformBuffer()
 	ubo.proj[1][1] *= -1;// makes the y axis projected to the same as vulkans
 	//ubo.lightPosition = cameraPosition;//lightPos;//cameraPosition;
 	light sun;
-	sun.pos = { 200,200,-200 };
-	sun.colour = glm::vec3(0.0f, 0.0f, 0.5f);
-	sun.intensity = glm::vec3(0.5f);
+	sun.pos = { 0,2,-2 };
+	sun.colour = glm::vec3(1.0f, 0.0f, 0.0f);
+	sun.intensity = glm::vec3(1.0f);
 	for (uint32_t i = 0; i < MAX_LIGHTS; i++) {//only shaders first lights inside light vector, sort for closes position todo
-		if (i < gamePtr->lights.size()-1) {
-			ubo.lightPosition[i] = gamePtr->lights[i].pos;
-			ubo.lightColour[i] = gamePtr->lights[i].colour;
-			ubo.lightIntensity[i] = gamePtr->lights[i].intensity;
-		}
-		else {
-			ubo.lightPosition[i] = sun.pos;
-			ubo.lightColour[i] = sun.colour;
-			ubo.lightIntensity[i] = sun.intensity;
-		}
+		ubo.lightPosition[i] = modelsPtr->unitList[1].pos + glm::vec3(0, 10, 0);
+		//ubo.lightPosition[i] = glm::vec3(2, 5, -3);
+		ubo.lightIntensity[i] = glm::vec3(1);
+		ubo.lightColour[i] = glm::vec3(0.8, 0.5, 0.5);//brg		
+		//if (i < gamePtr->lights.size()) {
+		//	ubo.lightPosition[i] = gamePtr->lights[i].pos;
+		//	ubo.lightColour[i] = gamePtr->lights[i].colour;
+		//	ubo.lightIntensity[i] = gamePtr->lights[i].intensity;
+		//}
+		//else {
+		//	//ubo.lightPosition[i] = sun.pos;
+		//	//ubo.lightColour[i] = sun.colour;
+		//	//ubo.lightIntensity[i] = sun.intensity;
+		//}
 	}
-	ubo.ambient = glm::vec3(0.5f);
+	ubo.ambient = glm::vec3(1.0f);
 	if (!setupPtr->configPtr->lighting) {
 		ubo.ambient = glm::vec3(1.0f);
 	}
@@ -287,22 +290,27 @@ void Renderer::moveUnits()
 	glm::vec2 mouseNormalized(mouseNormalizedX, -mouseNormalizedY);//vulkan uses -y as up so inverting y axis from cortesian mouse coordinates, can be done in ubo.view[1][1]*=-1
 	//printf("x:%f,y:%f\n", mouseNormalized.x, mouseNormalized.y);//cartesian coordinates (0,0 = mid, pos x is right, pos y is up)
 	glm::vec3 mouseEye =inverse(ubo.proj) * glm::vec4(mouseNormalized,-1.0f, 1.0f);
-	//ubo.view[1][1] *= -1;//vulkan -y is up, this is corrected here and in ubo update function
 	glm::vec3 mouseWorld = inverse(ubo.view) * glm::vec4(mouseEye, 0.0f);
 	mouseWorld = normalize(mouseWorld);
-	//mouseWorld.z *= -1;
-	//mouseWorld.x *= -1;
-	//mouseWorld.y *= -1;
+	//printf("x:%f,y:%f,z:%f\n", mouseWorld.x, mouseWorld.y, mouseWorld.z);
 
-	printf("x:%f,y:%f,z:%f\n", mouseWorld.x, mouseWorld.y, mouseWorld.z);
+
+	//mouse ray
+	//for each unit / hitbox
+	//if hitbox in +z/-z compare to camera direction (+z/-z), check either -z or +z units for efficiency
+	//create ray between cameraPos and unit
+	//calc distance between cameraPos and unit
+	//closer the unit to camera the more similar the ray will be
+	//within a certain threshold if ray similarity wrt distance between
+	//if not accurate enough, do midpoint binary search to get point of intersection
+	//e.g get relative y between cameraPos if camera above, find intersection on top plane of unit hitbox.
+
 	glm::vec3 test;
-	test = cameraPosition+(mouseWorld * glm::vec3(20));
+	test = cameraPosition+(mouseWorld * glm::vec3(4));
 	if (windowPtr->isMousePressed(1)) {
 		modelsPtr->unitList[1].move(-modelsPtr->unitList[1].pos);//move back to 0,0
 		modelsPtr->unitList[1].move(test);
 	}
-
-	//double fps = windowPtr->getfps();
 
 	glm::vec3 enemy = modelsPtr->unitList[1].pos;
 	if (1) {//wasd inputs
@@ -399,7 +407,7 @@ void Renderer::moveUnits()
 
 		for (int p = 0; p < gamePtr->sentryList[0].gunPtr->ammo;p++) {
 			if (i == gamePtr->sentryList[0].projectileUnitListIndex+p) {
-				//physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[3]);//check sentry[0] projectiles against t62 
+				physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[3]);//check sentry[0] projectiles against t62 
 			}
 		}
 		for (uint32_t j = 1; j < modelsPtr->unitList.size(); j++) {
@@ -430,8 +438,6 @@ void Renderer::moveUnits()
 		//else {modelsPtr->unitList[i].transform(modelsPtr->vertices);//rotate all units to face forward(-z) at 0,0; then rotate/transform unit along x,y axis
 		//}			
 	}
-
-	//printf("floor:%f\n", modelsPtr->unitList[1].hitbox.min.y);
 
 	modelsPtr->updateHitboxes();//update vertex buffer position of all hitboxes (1 for each unit, transformed by unit translation)
 	modelsPtr->transformUnits();

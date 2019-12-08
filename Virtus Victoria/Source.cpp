@@ -86,42 +86,6 @@ int main() {
 		unitTypeArray[i].mass = assets[i].mass;
 	}
 
-	/*unitTypeArray[0].name = "terrain";
-	unitTypeArray[0].modelPath = "Models/" + unitTypeArray[0].name + ".obj";
-	unitTypeArray[0].texturePath = "Textures/" + unitTypeArray[0].name + ".jpg";
-	unitTypeArray[0].textureIndex = 0;
-	unitTypeArray[0].mass = 9999999999999;
-	
-	unitTypeArray[1].name = "20mm round";
-	unitTypeArray[1].modelPath = "Models/" + unitTypeArray[1].name + ".obj";
-	unitTypeArray[1].texturePath = "Textures/" + unitTypeArray[1].name + ".jpg";
-	unitTypeArray[1].textureIndex = 1;
-	unitTypeArray[1].mass = 0.1f;
-
-	unitTypeArray[2].name = "20mm gun";
-	unitTypeArray[2].modelPath = "Models/" + unitTypeArray[2].name + ".obj";
-	unitTypeArray[2].texturePath = "Textures/" + unitTypeArray[2].name + ".jpg";
-	unitTypeArray[2].textureIndex = 2;
-	unitTypeArray[2].mass = 5;
-	
-	unitTypeArray[3].name = "turret";
-	unitTypeArray[3].modelPath = "Models/" + unitTypeArray[3].name + ".obj";
-	unitTypeArray[3].texturePath = "Textures/" + unitTypeArray[3].name + ".jpg";
-	unitTypeArray[3].textureIndex = 3;
-	unitTypeArray[3].mass = 10;
-
-	unitTypeArray[4].name = "pyramid";
-	unitTypeArray[4].modelPath = "Models/" + unitTypeArray[4].name + ".obj";
-	unitTypeArray[4].texturePath = "Textures/" + unitTypeArray[4].name + ".jpg";
-	unitTypeArray[4].textureIndex = 4;
-	unitTypeArray[4].mass = 999999;
-
-	unitTypeArray[5].name = "t62";
-	unitTypeArray[5].modelPath = "Models/" + unitTypeArray[5].name + ".obj";
-	unitTypeArray[5].texturePath = "Textures/" + unitTypeArray[5].name + ".jpg";
-	unitTypeArray[5].textureIndex = 5;
-	unitTypeArray[5].mass = 30000;*/
-
 	//load all models into unitTypes and load main vertex buffer with units
 	Models models(unitTypeArray, unitTypeCount);	
 	Game game(&virtusWindow, &models);

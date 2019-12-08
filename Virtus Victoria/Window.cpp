@@ -96,7 +96,7 @@ float Window::getfps()
 	if (ctime - time >= 1.0)
 	{
 		time += 1.0f;
-		//std::cout << "fps: " << frame << std::endl;
+		std::cout << "fps: " << frame << std::endl;
 		prevFrame = frame;	
 		frame = 0;
 		return prevFrame;

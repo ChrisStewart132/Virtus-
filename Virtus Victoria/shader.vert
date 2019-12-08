@@ -25,7 +25,7 @@ layout(location = 3) out vec3 fragView;
 layout(location = 4) out vec3 fragLight[4];
 layout(location = 8) out vec3 fragLightColour[4];
 layout(location = 12) out vec3 fragLightIntensity[4];
-layout(location = 16) out vec3 fragAmbient;
+layout(location = 17) out vec3 fragAmbient;
 
 out gl_PerVertex {
     vec4 gl_Position;
@@ -39,10 +39,12 @@ void main() {
     fragTexCoord = inTexCoord;
 	fragNormal = mat3(ubo.view) * mat3(ubo.model) * inNormal;
 	fragView = -(ubo.view * worldPos).xyz;
-	for(int i = 0;i<4;i++){
+
+	int i = 0;
+	//for(int i = 0;i<4;i++){
 		fragLight[i] = mat3(ubo.view) * (ubo.lightPosition[i] - vec3(worldPos));
 		fragLightColour[i]=ubo.lightColour[i];
 		fragLightIntensity[i]=ubo.lightIntensity[i];
-	}
+	//}
 	fragAmbient=ubo.ambient;
 }

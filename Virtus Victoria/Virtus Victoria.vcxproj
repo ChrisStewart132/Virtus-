@@ -91,13 +91,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>Libraries\tinyobjloader-master;Libraries\stb-master;Libraries\glm;Libraries\glfw-3.2.1.bin.WIN32\include;C:\VulkanSDK\1.1.101.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Libraries\tinyobjloader-master;Libraries\stb-master;Libraries\glm;Libraries\glfw-3.2.1.bin.WIN32\include;C:\VulkanSDK\1.1.121.2\Include</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>Libraries\glfw-3.2.1.bin.WIN32\lib-vc2015;C:\VulkanSDK\1.1.101.0\Lib32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>Libraries\glfw-3.2.1.bin.WIN32\lib-vc2015;C:\VulkanSDK\1.1.121.2\Lib32</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
@@ -126,7 +126,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>Libraries\tinyobjloader-master;Libraries\stb-master;Libraries\glm;Libraries\glfw-3.2.1.bin.WIN32\include;D:\VulkanSDK\1.1.101.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Libraries\tinyobjloader-master;Libraries\stb-master;Libraries\glm;Libraries\glfw-3.2.1.bin.WIN32\include;C:\VulkanSDK\1.1.121.2\Include</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
@@ -134,7 +134,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>Libraries\glfw-3.2.1.bin.WIN32\lib-vc2015;D:\VulkanSDK\1.1.101.0\Lib32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>Libraries\glfw-3.2.1.bin.WIN32\lib-vc2015;C:\VulkanSDK\1.1.121.2\Lib32</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>

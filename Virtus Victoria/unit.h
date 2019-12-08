@@ -380,6 +380,12 @@ public:
 		if (mag < 0) { mag *= -1; }
 		return mag;
 	}
+
+	float magnitude(glm::vec3 v) {
+		float mag = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+		return mag;
+	}
+
 	unitType* unitTypePtr;
 	uint32_t vertexStart;
 	glm::vec3 pos = glm::vec3(0);

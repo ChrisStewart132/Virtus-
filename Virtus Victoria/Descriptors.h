@@ -10,7 +10,7 @@
 
 #define MAX_LIGHTS 4
 struct light {
-	glm::vec3 pos = glm::vec3(0.0f);
+	glm::vec3 pos = glm::vec3(10.0f);
 	glm::vec3 colour = glm::vec3(0.5f);
 	glm::vec3 intensity = glm::vec3(0.5f);//0-1
 };

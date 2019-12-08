@@ -168,7 +168,7 @@ void Pipeline::createGraphicsPipeline()
 	pipelineLayoutInfo.pSetLayouts = &descriptorSetLayoutPtr->descriptorSetLayout;
 
 	VkPushConstantRange pushConstantRange = {};
-	pushConstantRange.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	pushConstantRange.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;//VK_SHADER_STAGE_VERTEX_BIT//VK_SHADER_STAGE_FRAGMENT_BIT
 	pushConstantRange.offset = 0;
 	pushConstantRange.size = sizeof(textureInfo);
 	pipelineLayoutInfo.pushConstantRangeCount = 1;

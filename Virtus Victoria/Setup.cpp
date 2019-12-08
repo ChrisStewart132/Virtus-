@@ -206,7 +206,10 @@ void Setup::createSwapChain()//swapchain image imageview
 #ifdef _DEBUG
 		std::cout << result << std::endl;
 #endif
+		vkGetSwapchainImagesKHR(device, swapChains[i], &configPtr->swapChainCount, NULL);//if swapChainImages is null returns the number of swap chain images available to swapchain count / sets swap chain count
+		std::cout<<"available swapchain images: " << configPtr->swapChainCount << std::endl;
 		result=vkGetSwapchainImagesKHR(device, swapChains[i], &configPtr->swapChainCount, swapChainImages.data());
+		
 #ifdef _DEBUG
 		std::cout << result << std::endl;
 #endif
