@@ -104,6 +104,9 @@
     <ClInclude Include="math6.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CRS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.frag">

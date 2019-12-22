@@ -35,6 +35,9 @@
 //structs
 #include "config.h"
 
+//
+#include "CRS.h"
+
 //asset importing
 struct asset {
 	const char* name;
@@ -50,6 +53,8 @@ int main() {
 	//rotation dynamics
 	
 	//hitboxes, rotate hitboxes in transform, collision detection, correct unit COM, construct class (combined COM), torque/moments
+
+	readBMP("Untitled.bmp");
 
 
 	config simpleConfig;

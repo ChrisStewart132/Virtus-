@@ -176,6 +176,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h" />
+    <ClInclude Include="CRS.h" />
     <ClInclude Include="Descriptors.h" />
     <ClInclude Include="DescriptorSetLayout.h" />
     <ClInclude Include="FrameBuffer.h" />
