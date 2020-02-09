@@ -309,6 +309,26 @@ struct hitbox {
 		}
 	}
 
+	bool pointInside(glm::vec3 point)
+	{
+		if (max.y > point.y && min.y < point.y) {
+			if (max.z > point.z && min.z < point.z) {
+				if (max.x > point.x && min.x < point.x) {
+					return true;
+				}
+				else {
+					return false;
+				}
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+	}
+
 	void moveCubeVertices(glm::vec3 _translation) {
 		for (int i = 0; i < cubeVertices.size(); i++) {
 			cubeVertices[i].pos += _translation;

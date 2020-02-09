@@ -94,7 +94,7 @@ void RenderPass::createRenderPass()
 	renderPassInfo.pSubpasses = &subpass;
 	renderPassInfo.dependencyCount = 1;
 	renderPassInfo.pDependencies = &dependency;
-	//to make msaa work in release mode need to delete all if statements referring to config ptr AA, however this will disallow non AA (need to figure out solution for if statements)
+	//
 	if (vkCreateRenderPass(setupPtr->device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create render pass!");
 	}

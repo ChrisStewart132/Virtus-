@@ -105,22 +105,52 @@ void Pipeline::createGraphicsPipeline()
 	viewport.maxDepth = 1.0f;
 
 	VkRect2D scissor = {};
-	scissor.offset = { 0, 0 };
-	scissor.extent = { setupPtr->configPtr->windowWidth, setupPtr->configPtr->windowHeight};
+	scissor.offset = { (int32_t)(setupPtr->configPtr->windowWidth - setupPtr->configPtr->viewWidth) / 2, (int32_t)(setupPtr->configPtr->windowHeight - setupPtr->configPtr->viewHeight) / 2 };
+	scissor.extent = { setupPtr->configPtr->viewWidth, setupPtr->configPtr->viewHeight };
+	//scissor.extent = { setupPtr->configPtr->windowWidth, setupPtr->configPtr->windowHeight };
+
+	VkViewport viewport2 = {};
+	viewport2.x = 0.0f;
+	viewport2.y = 0.0f;
+	viewport2.width = (float)setupPtr->configPtr->windowWidth;
+	viewport2.height = (float)setupPtr->configPtr->windowHeight;
+	viewport2.minDepth = 0.0f;
+	viewport2.maxDepth = 1.0f;
+
+	VkRect2D scissor2 = {};
+	scissor2.offset = { 0,0 };
+	scissor2.extent = { setupPtr->configPtr->windowWidth/5, setupPtr->configPtr->windowHeight/5 };
+	
+	std::array<VkViewport, 2> viewports;
+	viewports[0] = viewport;
+	viewports[1] = viewport2;
+
+	std::vector<VkRect2D> scissors;
+	scissors.push_back(scissor);
+	scissors.push_back(scissor2);
 
 	VkPipelineViewportStateCreateInfo viewportState = {};
 	viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-	viewportState.viewportCount = 1;
-	viewportState.pViewports = &viewport;
-	viewportState.scissorCount = 1;
-	viewportState.pScissors = &scissor;
+	
+	viewportState.viewportCount = viewports.size();
+	viewportState.pViewports = viewports.data();
+
+	viewportState.scissorCount = scissors.size();
+	viewportState.pScissors = scissors.data();
+
+	std::array<VkDynamicState,2> dynamicStates = { VK_DYNAMIC_STATE_SCISSOR,VK_DYNAMIC_STATE_VIEWPORT };
+	VkPipelineDynamicStateCreateInfo dynamicInfo = {};
+	dynamicInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	dynamicInfo.dynamicStateCount = dynamicStates.size();
+	dynamicInfo.pDynamicStates = dynamicStates.data();
+
 
 	VkPipelineRasterizationStateCreateInfo rasterizer = {};
 	rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	rasterizer.depthClampEnable = VK_FALSE;
 	rasterizer.rasterizerDiscardEnable = VK_FALSE;
 	rasterizer.polygonMode = settings.polygonMode;//VK_POLYGON_MODE_POINT;// VK_POLYGON_MODE_LINE;// VK_POLYGON_MODE_FILL;//
-	rasterizer.lineWidth = 1.0f;
+	rasterizer.lineWidth = settings.rasterLineWidth;
 	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
 	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rasterizer.depthBiasEnable = VK_FALSE;
@@ -140,14 +170,14 @@ void Pipeline::createGraphicsPipeline()
 
 	VkPipelineDepthStencilStateCreateInfo depthStencil = {};
 	depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-	depthStencil.depthTestEnable = VK_TRUE;
-	depthStencil.depthWriteEnable = VK_TRUE;
+	depthStencil.depthTestEnable = 1;
+	depthStencil.depthWriteEnable = 1;
 	depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
 	depthStencil.depthBoundsTestEnable = VK_FALSE;
 	depthStencil.stencilTestEnable = VK_FALSE;
 
 	VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	colorBlendAttachment.colorWriteMask = settings.colours;// VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 	colorBlendAttachment.blendEnable = VK_FALSE;
 
 	VkPipelineColorBlendStateCreateInfo colorBlending = {};
@@ -192,6 +222,7 @@ void Pipeline::createGraphicsPipeline()
 	pipelineInfo.renderPass = renderPassPtr->renderPass;
 	pipelineInfo.subpass = 0;
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
+	pipelineInfo.pDynamicState = &dynamicInfo;//if used must set dynamic elements in pipeline before each draw call (e.g. vk set viewport or scissor...)
 	
 	VkResult result;
 	result=vkCreateGraphicsPipelines(setupPtr->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline);

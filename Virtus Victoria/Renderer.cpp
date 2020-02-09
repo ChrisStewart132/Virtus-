@@ -165,8 +165,57 @@ void Renderer::update()
 	vkMapMemory(setupPtr->device, descriptorsPtr->vertexBufferMemory, 0, bufferSize, 0, &data);
 	memcpy(data, modelsPtr->vertices.data(), bufferSize);
 	vkUnmapMemory(setupPtr->device, descriptorsPtr->vertexBufferMemory);
-	//choose pipeline
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindVertexBuffers(commandBuffers[0], 0, 1, &descriptorsPtr->vertexBuffer, offsets);
+	//vkCmdBindIndexBuffer(commandBuffers[0], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//choose pipeline and dynamic viewport/scissor///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	int pipelineIndex;
+	VkViewport viewport = {};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.width = (float)setupPtr->configPtr->windowWidth;
+	viewport.height = (float)setupPtr->configPtr->windowHeight;
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+
+	VkRect2D scissor = {};
+	
+	if (windowPtr->isKeyPressed(GLFW_KEY_4)) {
+		scissor.extent = { setupPtr->configPtr->windowWidth, setupPtr->configPtr->windowHeight };
+		scissor.offset = { 0,0 };
+	}
+	else {
+		scissor.extent = { setupPtr->configPtr->viewWidth, setupPtr->configPtr->viewHeight };
+		scissor.offset = { (int32_t)(setupPtr->configPtr->windowWidth - setupPtr->configPtr->viewWidth) / 2, (int32_t)(setupPtr->configPtr->windowHeight - setupPtr->configPtr->viewHeight) / 2 };
+	}
+	
+
+	VkViewport viewport2 = {};
+	viewport2.x = 0.0f;
+	viewport2.y = 0.0f;	
+	viewport2.width = (float)setupPtr->configPtr->windowWidth;
+	viewport2.height = (float)setupPtr->configPtr->windowHeight;
+	viewport2.minDepth = 0.0f;
+	viewport2.maxDepth = 1.0f;
+
+	VkRect2D scissor2 = {};
+	scissor2.offset = { 0,0 };
+	scissor2.extent = { setupPtr->configPtr->windowWidth / 5, setupPtr->configPtr->windowHeight / 5 };
+
+	std::array<VkViewport, 2> viewports;
+	viewports[0] = viewport;
+	viewports[1] = viewport2;
+
+	std::array<VkRect2D,2> scissors;
+	scissors[0] = scissor;
+	scissors[1] = scissor2;
+
+	vkCmdSetViewport(commandBuffers[0], 0, 2, viewports.data());
+	vkCmdSetScissor(commandBuffers[0], 0, 2, scissors.data());
+
 	if (windowPtr->isKeyPressed(GLFW_KEY_1)) {
 		pipelineIndex = 1;
 		vkCmdBindPipeline(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].graphicsPipeline);//line
@@ -179,39 +228,43 @@ void Renderer::update()
 		pipelineIndex = 0;
 		vkCmdBindPipeline(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].graphicsPipeline);//fill
 	}
-	VkDeviceSize offsets[] = { 0 };
-	vkCmdBindVertexBuffers(commandBuffers[0], 0, 1, &descriptorsPtr->vertexBuffer, offsets);
-	//vkCmdBindIndexBuffer(commandBuffers[0], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+	//pipeline binded////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	
 
 	uint32_t hitboxVertexCount = modelsPtr->unitList.size() * 36;//every unit automatically has a 36 vertex hitbox rendered 
 	textureInfo texturePushConstant;
 	vkCmdBindDescriptorSets(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].pipelineLayout, 0, 1, &descriptorsPtr->descriptorSets[0], 0, nullptr);
 	if (setupPtr->configPtr->textures) {
-		for (uint32_t i = 0; i < modelsPtr->unitTypeList.size(); i++) {
+		for (uint32_t i = 0; i < modelsPtr->unitTypeList.size(); i++) {//for each unit type and therefore each texture
 			texturePushConstant.textureIndex = i;
 			vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,0,sizeof(texturePushConstant),&texturePushConstant);
 			//vkCmdDrawIndexed(commandBuffers[0], indices.size(), 1, 0, 0, 0);
 			for (uint32_t j = 0; j < modelsPtr->unitList.size(); j++) {//for every single unit loaded
-				if (modelsPtr->unitList[j].unitTypePtr->textureIndex == i) {
-					vkCmdDraw(commandBuffers[0], modelsPtr->unitList[j].unitTypePtr->vertices.size(), 1, modelsPtr->unitList[j].vertexStart, 0);//for every texture, 1 draw call per unit loaded
+				if (modelsPtr->unitList[j].unitTypePtr->textureIndex == i) {//if the unit type matches the unit
+					vkCmdDraw(commandBuffers[0], modelsPtr->unitList[j].unitTypePtr->vertices.size(), 1, modelsPtr->unitList[j].vertexStart, 0);//for every texture, 1 draw call per unit loaded with current texture
 				}
 			}
 		}
-		if (windowPtr->isKeyPressed(GLFW_KEY_1)) {
+		if (windowPtr->isKeyPressed(GLFW_KEY_1)) {//if pressing 1 will be rendering line mode, also render the hitboxes of each unit here
 			texturePushConstant.textureIndex = 4;
 			vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,0,sizeof(texturePushConstant),&texturePushConstant);//or VK_SHADER_STAGE_VERTEX_BIT if push uses this flag
-			vkCmdDraw(commandBuffers[0], hitboxVertexCount, 1, modelsPtr->vertices.size()-hitboxVertexCount, 0);//for every texture, 1 draw call per unit loaded
+			vkCmdDraw(commandBuffers[0], hitboxVertexCount, 1, modelsPtr->vertices.size()-hitboxVertexCount, 0);//
 		}		
 	}
 	else {//
-		texturePushConstant.textureIndex = 4;
+		texturePushConstant.textureIndex = 5;
 		vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,0,sizeof(texturePushConstant),&texturePushConstant);
 		
 		if (windowPtr->isKeyPressed(GLFW_KEY_1)) {
-			hitboxVertexCount = 0;
+			hitboxVertexCount = 0;//setting this value to 0 will make all the hitboxes render below
 		}
 		vkCmdDraw(commandBuffers[0], modelsPtr->vertices.size()-hitboxVertexCount, 1, 0, 0);//1 draw call for all units
 	}
+
+
+
 	vkCmdEndRenderPass(commandBuffers[0]);
 	vkEndCommandBuffer(commandBuffers[0]);
 }
@@ -254,7 +307,7 @@ void Renderer::updateUniformBuffer()
 	sun.colour = glm::vec3(1.0f, 0.0f, 0.0f);
 	sun.intensity = glm::vec3(1.0f);
 	for (uint32_t i = 0; i < MAX_LIGHTS; i++) {//only shaders first lights inside light vector, sort for closes position todo
-		ubo.lightPosition[i] = modelsPtr->unitList[1].pos + glm::vec3(0, 10, 0);
+		ubo.lightPosition[i] = modelsPtr->unitList[1].pos + glm::vec3(0, 1, 0);
 		//ubo.lightPosition[i] = glm::vec3(2, 5, -3);
 		ubo.lightIntensity[i] = glm::vec3(1);
 		ubo.lightColour[i] = glm::vec3(0.8, 0.5, 0.5);//brg		
@@ -269,7 +322,7 @@ void Renderer::updateUniformBuffer()
 		//	//ubo.lightIntensity[i] = sun.intensity;
 		//}
 	}
-	ubo.ambient = glm::vec3(1.0f);
+	ubo.ambient = glm::vec3(0.4f);
 	if (!setupPtr->configPtr->lighting) {
 		ubo.ambient = glm::vec3(1.0f);
 	}
@@ -310,7 +363,23 @@ void Renderer::moveUnits()
 	if (windowPtr->isMousePressed(1)) {
 		modelsPtr->unitList[1].move(-modelsPtr->unitList[1].pos);//move back to 0,0
 		modelsPtr->unitList[1].move(test);
+
+		int maxDistance = 10;
+		int incrementCount = 1000;
+		for (int i = 0; i < incrementCount; i++) {
+			glm::vec3 rayPoint = cameraPosition + (mouseWorld * glm::vec3((maxDistance / incrementCount) * i));
+			for (int j = 1; j < modelsPtr->unitList.size(); j++) {
+				if (modelsPtr->unitList[j].hitbox.pointInside(rayPoint)) {
+					modelsPtr->unitList[j].v.y += 10.0f;
+				}
+			}
+		}
 	}
+
+	
+	
+	
+
 
 	glm::vec3 enemy = modelsPtr->unitList[1].pos;
 	if (1) {//wasd inputs
@@ -428,6 +497,23 @@ void Renderer::moveUnits()
 		else if (windowPtr->isKeyPressed(GLFW_KEY_8)) {
 			if (!modelsPtr->unitList[i].antiGravity) {
 				modelsPtr->unitList[i].v.y -= 1 + (i * 0.1f);
+			}
+		}
+
+		if (windowPtr->isKeyPressed(GLFW_KEY_9)) {
+			if (!modelsPtr->unitList[i].antiGravity) {
+				modelsPtr->unitList[i].rotation.y += 60 * i;
+			}
+		}
+		else if (windowPtr->isKeyPressed(GLFW_KEY_0)) {
+			if (!modelsPtr->unitList[i].antiGravity) {
+				modelsPtr->unitList[i].rotation.y -= 30 * i;
+			}
+		}
+
+		if (windowPtr->isKeyPressed(GLFW_KEY_5)) {
+			if (!modelsPtr->unitList[i].antiGravity) {
+				modelsPtr->unitList[i].v.z += 0.1 * i;
 			}
 		}
 

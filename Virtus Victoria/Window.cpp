@@ -15,9 +15,23 @@ Window::Window(config* _configPtr)
 
 	glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	glfwWindowHint(GLFW_RESIZABLE, 1);
+	glfwWindowHint(GLFW_MAXIMIZED, 1);
+	glfwWindowHint(GLFW_FLOATING, 1);
+	glfwWindowHint(GLFW_AUTO_ICONIFY, 0);
+	glfwWindowHint(GLFW_FOCUS_ON_SHOW, 0);
+	glfwWindowHint(GLFW_FOCUSED, 0);
+	glfwWindowHint(GLFW_DECORATED, 0);
+	glfwWindowHint(GLFW_REFRESH_RATE, GLFW_DONT_CARE);
+
+	glfwWindowHint(GLFW_VISIBLE, 1);
+	glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, _configPtr->transparentWindow);
+	
 	glfwWindow = glfwCreateWindow(windowWidth, windowHeight, "Virtus", nullptr, nullptr);
 
+	if (_configPtr->transparentWindow) {
+		glfwSetWindowOpacity(glfwWindow, _configPtr->windowTransparency);
+	}
 	glfwSetKeyCallback(glfwWindow, key_callback);
 	glfwSetMouseButtonCallback(glfwWindow, mouse_button_callback);
 	glfwSetCursorPosCallback(glfwWindow, cursor_position_callback);

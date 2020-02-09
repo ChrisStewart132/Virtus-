@@ -39,10 +39,12 @@ void main() {
     fragTexCoord = inTexCoord;
 	fragNormal = mat3(ubo.view) * mat3(ubo.model) * inNormal;
 	fragView = -(ubo.view * worldPos).xyz;
-	for(int i = 0;i<4;i++){
+
+	int i = 0;
+	//for(int i = 0;i<4;i++){
 		fragLight[i] = mat3(ubo.view) * (ubo.lightPosition[i] - vec3(worldPos));
 		fragLightColour[i]=ubo.lightColour[i];
 		fragLightIntensity[i]=ubo.lightIntensity[i];
-	}
+	//}
 	fragAmbient=ubo.ambient;
 }

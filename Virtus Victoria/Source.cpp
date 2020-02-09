@@ -42,6 +42,7 @@
 struct asset {
 	const char* name;
 	float mass;
+	bool hasTexture=false;
 };
 
 //vulkan SDK 1.0.77.0
@@ -54,39 +55,59 @@ int main() {
 	
 	//hitboxes, rotate hitboxes in transform, collision detection, correct unit COM, construct class (combined COM), torque/moments
 
-	readBMP("Untitled.bmp");
-
+	//readBMP("Untitled.bmp");
 
 	config simpleConfig;
-	simpleConfig.windowWidth = 1920.0f/1.f;
-	simpleConfig.windowHeight = 1061.0f / 1.f;
-	simpleConfig.viewWidth = simpleConfig.windowWidth;
-	simpleConfig.viewHeight = simpleConfig.windowHeight;
+
+	simpleConfig.windowWidth = 2560.0/1.f;
+	simpleConfig.windowHeight = 1421.0 / 1.f;
+	simpleConfig.viewWidth = simpleConfig.windowWidth/1.9f;
+	simpleConfig.viewHeight = simpleConfig.windowHeight/1.9f;
+
 	simpleConfig.swapChainCount = 1;//not implemented
+
 	simpleConfig.lighting = 1;//frag colour green??1
-	simpleConfig.textures = 0;
-	simpleConfig.mip = true;
-	simpleConfig.antialiasing = true;//must be false if msaa=1
-	simpleConfig.msaaSamples = VK_SAMPLE_COUNT_8_BIT;
-	simpleConfig.samepleShading = true;
+
+	simpleConfig.textures = 1;
+	simpleConfig.mip = 1;
+
+	simpleConfig.antialiasing = 1;//must be false if msaa=1
+	simpleConfig.msaaSamples = VK_SAMPLE_COUNT_8_BIT;//1,2,4,8
+	simpleConfig.samepleShading = 1;
+
+	simpleConfig.transparentWindow = 0;
+	simpleConfig.windowTransparency = 0.9f;
+
+	simpleConfig.multipleViewports = 1;
+
+	simpleConfig.check();
 
 	Window virtusWindow(&simpleConfig);
 	Setup setup(virtusWindow.getWindow(), &simpleConfig);
 	
 	//specify unit types
-	const uint32_t unitTypeCount = 6;//update descriptors.h unittypecount manually and frag shader tex sampler array
+	const uint32_t unitTypeCount = 9;//update descriptors.h unittypecount manually and frag shader tex sampler array
 	unitType unitTypeArray[unitTypeCount];
 	std::vector<asset> assets;
-	assets.push_back({ "terrain",99999999.0f });
+	assets.push_back({ "terrain",99999999.0f,true });
 	assets.push_back({ "20mm round",0.1f });
 	assets.push_back({ "20mm gun",5 });
 	assets.push_back({ "turret",10 });
-	assets.push_back({ "pyramid",999999 });
+	assets.push_back({ "pyramid",999999 ,true });
 	assets.push_back({ "t62",30000 });
+	assets.push_back({ "t-90a",50000 });
+	assets.push_back({ "a4",13500 });
+	assets.push_back({ "t-54",40000 });
+
 	for (int i = 0; i < unitTypeCount; i++) {
 		unitTypeArray[i].name = assets[i].name;
 		unitTypeArray[i].modelPath = "Models/" + unitTypeArray[i].name + ".obj";
-		unitTypeArray[i].texturePath = "Textures/" + unitTypeArray[i].name + ".jpg";
+		if (assets[i].hasTexture) {
+			unitTypeArray[i].texturePath = "Textures/" + unitTypeArray[i].name + ".jpg";
+		}
+		else {
+			unitTypeArray[i].texturePath = "Textures/default.jpg";
+		}	
 		unitTypeArray[i].textureIndex = i;
 		unitTypeArray[i].mass = assets[i].mass;
 	}
@@ -94,16 +115,23 @@ int main() {
 	//load all models into unitTypes and load main vertex buffer with units
 	Models models(unitTypeArray, unitTypeCount);	
 	Game game(&virtusWindow, &models);
+
 	game.createSentry();
 	models.transformUnits();
 	models.loadHitboxes();
+
+	//todo
 	//render starting screen
 	//create new config with specified settings
+	//todo
+
 	RenderPass renderPass(&setup);	
 	DescriptorSetLayout descriptorSetLayout(&setup,&models);
 
 	std::vector<Pipeline> pipelineVector;
+
 	pipelineInfo pipelineFillInfo;
+	pipelineFillInfo.polygonMode = VK_POLYGON_MODE_FILL;
 	if (!simpleConfig.lighting) {
 		pipelineFillInfo.fragShader = "frag2";
 		pipelineFillInfo.vertShader = "vert2";
@@ -113,18 +141,32 @@ int main() {
 
 	pipelineInfo pipelineLineInfo;
 	pipelineLineInfo.polygonMode = VK_POLYGON_MODE_LINE;
+	if (!simpleConfig.lighting) {
+		pipelineLineInfo.fragShader = "frag2";
+		pipelineLineInfo.vertShader = "vert2";
+	}
 	Pipeline pipelineLine(&setup, &descriptorSetLayout, &renderPass, pipelineLineInfo);
 	pipelineVector.push_back(pipelineLine);
 	
 	pipelineInfo pipelinePointInfo;
 	pipelinePointInfo.polygonMode = VK_POLYGON_MODE_POINT;
+	if (!simpleConfig.lighting) {
+		pipelinePointInfo.fragShader = "frag2";
+		pipelinePointInfo.vertShader = "vert2";
+	}
 	Pipeline pipelinePoint(&setup, &descriptorSetLayout, &renderPass, pipelinePointInfo);
 	pipelineVector.push_back(pipelinePoint);
+
 
 	Descriptors descriptors(&setup, &models, &descriptorSetLayout);//requires unit type count specified in header(for number of textures),same with frag shader (tex sampler count)
 	FrameBuffer frameBuffer(&setup, &renderPass);
 	Renderer renderer(&setup, &descriptors, &renderPass, &frameBuffer, pipelineVector.data(), &models, &virtusWindow, &game);
 	renderer.run();
+
+
+
+
+	//closing
 	renderer.destroy();
 	frameBuffer.destroy();
 	descriptors.destroy();

@@ -8,9 +8,11 @@ Setup::Setup(GLFWwindow* _glfwWindow, config* _configPtr)
 	windowPtr = _glfwWindow;
 	configPtr = _configPtr;
 	
-	swapChains.resize(configPtr->swapChainCount);
-	swapChainImages.resize(configPtr->swapChainCount);
-	swapChainImageViews.resize(configPtr->swapChainCount);
+	if (configPtr->renderingToWindow) {
+		swapChains.resize(configPtr->swapChainCount);
+		swapChainImages.resize(configPtr->swapChainCount);
+		swapChainImageViews.resize(configPtr->swapChainCount);
+	}
 
 	createInstance();
 	createSurface();
@@ -161,6 +163,9 @@ void Setup::createDevice()
 	if (configPtr->samepleShading) {
 		deviceFeatures.sampleRateShading = VK_TRUE;
 	}
+	if (configPtr->multipleViewports) {
+		deviceFeatures.multiViewport = VK_TRUE;
+	}
 	
 
 	const char* deviceExtensions[1] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
@@ -185,34 +190,41 @@ void Setup::createSwapChain()//swapchain image imageview
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities);
 
 	
-
+	
 	for (uint32_t i = 0; i < configPtr->swapChainCount; i++) {
-		VkSwapchainCreateInfoKHR createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface = surface;
-		createInfo.minImageCount = 1;
-		createInfo.imageFormat = swapchainImageFormat;
-		createInfo.imageColorSpace = swapchainImageColourSpace;
-		createInfo.imageExtent = { configPtr->windowWidth, configPtr->windowHeight };
-		createInfo.imageArrayLayers = 1;
-		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-		createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;//single queue for present and graphics
-		createInfo.preTransform = capabilities.currentTransform;
-		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		createInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR;//VK_PRESENT_MODE_MAILBOX_KHR,VK_PRESENT_MODE_FIFO_KHR
-		createInfo.clipped = VK_TRUE;
-		createInfo.oldSwapchain = VK_NULL_HANDLE;
-		result=vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChains[i]);//swapchain
+
+		if (configPtr->renderingToWindow) {
+			VkSwapchainCreateInfoKHR createInfo = {};
+			createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+			createInfo.surface = surface;
+			createInfo.minImageCount = 1;
+			createInfo.imageFormat = swapchainImageFormat;
+			createInfo.imageColorSpace = swapchainImageColourSpace;
+			createInfo.imageExtent = { configPtr->windowWidth, configPtr->windowHeight };
+			createInfo.imageArrayLayers = 1;
+			createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;//single queue for present and graphics
+			createInfo.preTransform = capabilities.currentTransform;
+			createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+			createInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR;//VK_PRESENT_MODE_MAILBOX_KHR,VK_PRESENT_MODE_FIFO_KHR
+			createInfo.clipped = VK_TRUE;
+			createInfo.oldSwapchain = VK_NULL_HANDLE;
+			result = vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChains[i]);//swapchain
 #ifdef _DEBUG
-		std::cout << result << std::endl;
+			std::cout << result << std::endl;
 #endif
-		vkGetSwapchainImagesKHR(device, swapChains[i], &configPtr->swapChainCount, NULL);//if swapChainImages is null returns the number of swap chain images available to swapchain count / sets swap chain count
-		std::cout<<"available swapchain images: " << configPtr->swapChainCount << std::endl;
-		result=vkGetSwapchainImagesKHR(device, swapChains[i], &configPtr->swapChainCount, swapChainImages.data());
-		
+			vkGetSwapchainImagesKHR(device, swapChains[i], &configPtr->swapChainCount, NULL);//if swapChainImages is null returns the number of swap chain images available to swapchain count / sets swap chain count
+			std::cout << "available swapchain images: " << configPtr->swapChainCount << std::endl;
+			result = vkGetSwapchainImagesKHR(device, swapChains[i], &configPtr->swapChainCount, swapChainImages.data());
+
 #ifdef _DEBUG
-		std::cout << result << std::endl;
+			std::cout << result << std::endl;
 #endif
+		}
+		else {//not rendering to window
+
+		}
+
 		VkImageViewCreateInfo createInfo2 = {};
 		createInfo2.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		createInfo2.image = swapChainImages[i];

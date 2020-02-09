@@ -25,7 +25,7 @@ struct UniformBufferObject {
 	glm::vec3 ambient;
 };
 
-const uint32_t unitTypeCount = 6;
+const uint32_t unitTypeCount = 9;
 
 class Descriptors
 {

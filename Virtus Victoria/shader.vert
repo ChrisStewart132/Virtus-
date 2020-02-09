@@ -25,7 +25,7 @@ layout(location = 3) out vec3 fragView;
 layout(location = 4) out vec3 fragLight[4];
 layout(location = 8) out vec3 fragLightColour[4];
 layout(location = 12) out vec3 fragLightIntensity[4];
-layout(location = 17) out vec3 fragAmbient;
+layout(location = 16) out vec3 fragAmbient;
 
 out gl_PerVertex {
     vec4 gl_Position;
