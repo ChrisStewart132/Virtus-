@@ -6,6 +6,12 @@ private:
 
 public:
 
+	float distance(glm::vec3 v1, glm::vec3 v2) {
+		float distance;
+		distance = sqrt(pow(v1.x - v2.x, 2) + pow(v1.y - v2.y, 2) + pow(v1.z - v2.z, 2));
+		return distance;
+	}
+
 	float magnitude(glm::vec3 vec1) {
 		float magnitude;
 		magnitude = sqrt(pow(vec1.x, 2) + pow(vec1.y, 2) + pow(vec1.z, 2));

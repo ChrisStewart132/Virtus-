@@ -3,10 +3,12 @@
 #include <string>
 #include <iostream>
 
+#include "math6.h"
 #include "Vertex.h"
 #include <glm/glm.hpp>		
 #include <glm/gtc/matrix_transform.hpp>
 #include <math.h>
+
 //optomisations: hitbox functions seperate
 
 

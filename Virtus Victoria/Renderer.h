@@ -18,6 +18,7 @@ const uint32_t commandBufferCount = 1;
 class Renderer
 {
 private:
+	math6 m6;
 	//double t = 0;
 	double dt = 1.0 / 144.0f;
 	

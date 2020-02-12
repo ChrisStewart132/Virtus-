@@ -157,6 +157,29 @@ int main() {
 	Pipeline pipelinePoint(&setup, &descriptorSetLayout, &renderPass, pipelinePointInfo);
 	pipelineVector.push_back(pipelinePoint);
 
+	pipelineInfo pipelineInfo2;
+	pipelineInfo2.polygonMode = VK_POLYGON_MODE_LINE;
+	pipelineInfo2.colours = VK_COLOR_COMPONENT_G_BIT;
+	if (!simpleConfig.lighting) {
+		pipelineInfo2.fragShader = "frag2";
+		pipelineInfo2.vertShader = "vert2";
+	}
+	Pipeline pipelineFill2(&setup, &descriptorSetLayout, &renderPass, pipelineInfo2);
+	pipelineVector.push_back(pipelineFill2);
+
+	pipelineInfo hitboxPipelineInfo;
+	hitboxPipelineInfo.polygonMode = VK_POLYGON_MODE_LINE;
+	hitboxPipelineInfo.colours = VK_COLOR_COMPONENT_G_BIT;
+	hitboxPipelineInfo.rasterLineWidth = 0.5f;
+	if (!simpleConfig.lighting) {
+		hitboxPipelineInfo.fragShader = "frag2";
+		hitboxPipelineInfo.vertShader = "vert2";
+	}
+	Pipeline hitboxPipeline(&setup, &descriptorSetLayout, &renderPass, hitboxPipelineInfo);
+	pipelineVector.push_back(hitboxPipeline);
+
+
+
 
 	Descriptors descriptors(&setup, &models, &descriptorSetLayout);//requires unit type count specified in header(for number of textures),same with frag shader (tex sampler count)
 	FrameBuffer frameBuffer(&setup, &renderPass);

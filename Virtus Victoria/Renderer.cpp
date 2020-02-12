@@ -158,7 +158,8 @@ void Renderer::update()
 	moveUnits();//change vertex data
 				//update and bind ubo
 	updateUniformBuffer();//vkmapMemory-ubo object-vkunmapMemory
-						  //bind vertex data
+
+	//bind vertex data
 	vkBindBufferMemory(setupPtr->device, descriptorsPtr->vertexBuffer, descriptorsPtr->vertexBufferMemory, 0);
 	size_t bufferSize = sizeof(modelsPtr->vertices[0]) * modelsPtr->vertices.size();
 	void* data;
@@ -182,56 +183,27 @@ void Renderer::update()
 	viewport.maxDepth = 1.0f;
 
 	VkRect2D scissor = {};
-	
 	if (windowPtr->isKeyPressed(GLFW_KEY_4)) {
-		scissor.extent = { setupPtr->configPtr->windowWidth, setupPtr->configPtr->windowHeight };
-		scissor.offset = { 0,0 };
-	}
-	else {
 		scissor.extent = { setupPtr->configPtr->viewWidth, setupPtr->configPtr->viewHeight };
 		scissor.offset = { (int32_t)(setupPtr->configPtr->windowWidth - setupPtr->configPtr->viewWidth) / 2, (int32_t)(setupPtr->configPtr->windowHeight - setupPtr->configPtr->viewHeight) / 2 };
 	}
+	else {	
+		scissor.extent = { setupPtr->configPtr->windowWidth, setupPtr->configPtr->windowHeight };
+		scissor.offset = { 0,0 };
+	}
 	
-
-	VkViewport viewport2 = {};
-	viewport2.x = 0.0f;
-	viewport2.y = 0.0f;	
-	viewport2.width = (float)setupPtr->configPtr->windowWidth;
-	viewport2.height = (float)setupPtr->configPtr->windowHeight;
-	viewport2.minDepth = 0.0f;
-	viewport2.maxDepth = 1.0f;
-
-	VkRect2D scissor2 = {};
-	scissor2.offset = { 0,0 };
-	scissor2.extent = { setupPtr->configPtr->windowWidth / 5, setupPtr->configPtr->windowHeight / 5 };
-
-	std::array<VkViewport, 2> viewports;
+	std::array<VkViewport, 1> viewports;
 	viewports[0] = viewport;
-	viewports[1] = viewport2;
-
-	std::array<VkRect2D,2> scissors;
+	std::array<VkRect2D,1> scissors;
 	scissors[0] = scissor;
-	scissors[1] = scissor2;
+	vkCmdSetViewport(commandBuffers[0], 0, viewports.size(), viewports.data());
+	vkCmdSetScissor(commandBuffers[0], 0, scissors.size(), scissors.data());
 
-	vkCmdSetViewport(commandBuffers[0], 0, 2, viewports.data());
-	vkCmdSetScissor(commandBuffers[0], 0, 2, scissors.data());
-
-	if (windowPtr->isKeyPressed(GLFW_KEY_1)) {
-		pipelineIndex = 1;
-		vkCmdBindPipeline(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].graphicsPipeline);//line
-	}
-	else if (windowPtr->isKeyPressed(GLFW_KEY_2)) {
-		pipelineIndex = 2;
-		vkCmdBindPipeline(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].graphicsPipeline);//point
-	}
-	else {
-		pipelineIndex = 0;
-		vkCmdBindPipeline(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].graphicsPipeline);//fill
-	}
+	pipelineIndex = 0;
+	vkCmdBindPipeline(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].graphicsPipeline);//fill
 	//pipeline binded////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	
 
 	uint32_t hitboxVertexCount = modelsPtr->unitList.size() * 36;//every unit automatically has a 36 vertex hitbox rendered 
 	textureInfo texturePushConstant;
@@ -247,24 +219,91 @@ void Renderer::update()
 				}
 			}
 		}
-		if (windowPtr->isKeyPressed(GLFW_KEY_1)) {//if pressing 1 will be rendering line mode, also render the hitboxes of each unit here
-			texturePushConstant.textureIndex = 4;
-			vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,0,sizeof(texturePushConstant),&texturePushConstant);//or VK_SHADER_STAGE_VERTEX_BIT if push uses this flag
-			vkCmdDraw(commandBuffers[0], hitboxVertexCount, 1, modelsPtr->vertices.size()-hitboxVertexCount, 0);//
-		}		
 	}
 	else {//
 		texturePushConstant.textureIndex = 5;
 		vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,0,sizeof(texturePushConstant),&texturePushConstant);
-		
-		if (windowPtr->isKeyPressed(GLFW_KEY_1)) {
-			hitboxVertexCount = 0;//setting this value to 0 will make all the hitboxes render below
-		}
 		vkCmdDraw(commandBuffers[0], modelsPtr->vertices.size()-hitboxVertexCount, 1, 0, 0);//1 draw call for all units
+	}
+	
+	//rendering hitboxes with lines polygon mode pipeline to main viewport
+	if (windowPtr->isKeyPressed(GLFW_KEY_1)) {
+		pipelineIndex = 1;
+		vkCmdBindPipeline(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].graphicsPipeline);//line
+
+		uint32_t hitboxVertexCount = modelsPtr->unitList.size() * 36;//every unit automatically has a 36 vertex hitbox rendered 
+		textureInfo texturePushConstant;
+		vkCmdBindDescriptorSets(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].pipelineLayout, 0, 1, &descriptorsPtr->descriptorSets[0], 0, nullptr);
+		if (setupPtr->configPtr->textures) {
+			if (windowPtr->isKeyPressed(GLFW_KEY_1)) {//if pressing 1 will be rendering line mode, also render the hitboxes of each unit here
+				texturePushConstant.textureIndex = 4;
+				vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(texturePushConstant), &texturePushConstant);//or VK_SHADER_STAGE_VERTEX_BIT if push uses this flag
+				vkCmdDraw(commandBuffers[0], hitboxVertexCount, 1, modelsPtr->vertices.size() - hitboxVertexCount, 0);//
+			}
+		}
+		else {//
+			texturePushConstant.textureIndex = 5;
+			vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(texturePushConstant), &texturePushConstant);
+			vkCmdDraw(commandBuffers[0], hitboxVertexCount, 1, modelsPtr->vertices.size() - hitboxVertexCount, 0);//1 draw call for all units
+		}
 	}
 
 
+	//render 2nd viewport
+	pipelineIndex = 3;
+	float viewportSizeFactor = 3;
+	viewports[0].minDepth = 0.0f;
+	viewports[0].maxDepth = 0.9f;
+	viewports[0].width = (float)setupPtr->configPtr->windowWidth/ viewportSizeFactor;
+	viewports[0].height = (float)setupPtr->configPtr->windowHeight/ viewportSizeFactor;
+	viewports[0].x = (viewports[0].width/10);
+	viewports[0].y = setupPtr->configPtr->windowHeight - viewports[0].height - (viewports[0].width / 10);
+	scissors[0].extent = { (uint32_t)viewports[0].width,(uint32_t)viewports[0].height };
+	scissors[0].offset = { (int32_t)viewports[0].x,(int32_t)viewports[0].y };
+	vkCmdSetViewport(commandBuffers[0], 0, viewports.size(), viewports.data());
+	vkCmdSetScissor(commandBuffers[0], 0, scissors.size(), scissors.data());
+	vkCmdBindPipeline(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].graphicsPipeline);
+	
+	if (setupPtr->configPtr->textures & 0) {
+		for (uint32_t i = 0; i < modelsPtr->unitTypeList.size(); i++) {//for each unit type and therefore each texture
+			texturePushConstant.textureIndex = i;
+			vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(texturePushConstant), &texturePushConstant);
+			//vkCmdDrawIndexed(commandBuffers[0], indices.size(), 1, 0, 0, 0);
+			for (uint32_t j = 0; j < modelsPtr->unitList.size(); j++) {//for every single unit loaded
+				if (modelsPtr->unitList[j].unitTypePtr->textureIndex == i) {//if the unit type matches the unit
+					vkCmdDraw(commandBuffers[0], modelsPtr->unitList[j].unitTypePtr->vertices.size(), 1, modelsPtr->unitList[j].vertexStart, 0);//for every texture, 1 draw call per unit loaded with current texture
+				}
+			}
+		}
+	}
+	else {//
+		texturePushConstant.textureIndex = 5;
+		vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(texturePushConstant), &texturePushConstant);
+		vkCmdDraw(commandBuffers[0], modelsPtr->vertices.size() - hitboxVertexCount, 1, 0, 0);//1 draw call for all units
+	}
 
+	pipelineIndex = 4;
+	vkCmdBindPipeline(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].graphicsPipeline);
+	//if (windowPtr->isKeyPressed(GLFW_KEY_1)) {
+		//hitboxVertexCount = modelsPtr->unitList.size() * 36;//every unit automatically has a 36 vertex hitbox rendered 
+		//texturePushConstant;
+		//vkCmdBindDescriptorSets(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].pipelineLayout, 0, 1, &descriptorsPtr->descriptorSets[0], 0, nullptr);
+		if (setupPtr->configPtr->textures) {
+			//if (windowPtr->isKeyPressed(GLFW_KEY_1)) {//if pressing 1 will be rendering line mode, also render the hitboxes of each unit here
+				texturePushConstant.textureIndex = 4;
+				vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(texturePushConstant), &texturePushConstant);//or VK_SHADER_STAGE_VERTEX_BIT if push uses this flag
+				vkCmdDraw(commandBuffers[0], hitboxVertexCount, 1, modelsPtr->vertices.size() - hitboxVertexCount, 0);//
+			//}
+		}
+		else {//
+			texturePushConstant.textureIndex = 5;
+			vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(texturePushConstant), &texturePushConstant);
+			vkCmdDraw(commandBuffers[0], hitboxVertexCount, 1, modelsPtr->vertices.size() - hitboxVertexCount, 0);//1 draw call for all units
+		}
+	//}
+	
+
+	//end////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	vkCmdEndRenderPass(commandBuffers[0]);
 	vkEndCommandBuffer(commandBuffers[0]);
 }
@@ -287,6 +326,9 @@ void Renderer::run()
 		input();		
 		drawFrame();	
 		float fps = windowPtr->getfps();	
+		if (windowPtr->isKeyPressed(GLFW_KEY_ESCAPE) | windowPtr->isMousePressed(0)) {
+			glfwSetWindowShouldClose(setupPtr->windowPtr, 1);
+		}
 	}
 	vkDeviceWaitIdle(setupPtr->device);
 	glfwDestroyWindow(setupPtr->windowPtr);
@@ -335,6 +377,8 @@ void Renderer::updateUniformBuffer()
 	vkUnmapMemory(setupPtr->device, descriptorsPtr->uniformBufferMemory);
 }
 
+
+
 void Renderer::moveUnits()
 {
 	//mouse point
@@ -359,21 +403,32 @@ void Renderer::moveUnits()
 	//e.g get relative y between cameraPos if camera above, find intersection on top plane of unit hitbox.
 
 	glm::vec3 test;
-	test = cameraPosition+(mouseWorld * glm::vec3(4));
+	static int d;
+	test = cameraPosition+(mouseWorld * glm::vec3(1));
 	if (windowPtr->isMousePressed(1)) {
+		d++;
+		test = cameraPosition + (mouseWorld * glm::vec3(0.3*d));
 		modelsPtr->unitList[1].move(-modelsPtr->unitList[1].pos);//move back to 0,0
 		modelsPtr->unitList[1].move(test);
+		modelsPtr->unitList[1].v = glm::vec3(4) * (test - cameraPosition);
 
-		int maxDistance = 10;
-		int incrementCount = 1000;
-		for (int i = 0; i < incrementCount; i++) {
-			glm::vec3 rayPoint = cameraPosition + (mouseWorld * glm::vec3((maxDistance / incrementCount) * i));
-			for (int j = 1; j < modelsPtr->unitList.size(); j++) {
+		const int maxDistance = 100;
+		const int incrementCount = 10;
+		const float accuracy = 0.1f;
+		/*for (int j = 1; j < modelsPtr->unitList.size(); j++) {
+			float distance = maxDistance / 2.0f;
+			for (int i = 0; i < incrementCount; i++) {
+				
+				glm::vec3 rayPoint = cameraPosition + (mouseWorld * glm::vec3((maxDistance / incrementCount) * i));
+			
 				if (modelsPtr->unitList[j].hitbox.pointInside(rayPoint)) {
 					modelsPtr->unitList[j].v.y += 10.0f;
 				}
 			}
-		}
+		}*/
+	}
+	else {
+		d = 0;
 	}
 
 	

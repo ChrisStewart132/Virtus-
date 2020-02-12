@@ -10,9 +10,9 @@
 
 struct pipelineInfo {
 
-	VkColorComponentFlags colours = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	VkColorComponentFlags colours = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;//VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 	VkPolygonMode polygonMode = VK_POLYGON_MODE_FILL;
-	float rasterLineWidth = 3.0f;//thickness of lines when rasterizing in line mode
+	float rasterLineWidth = 2.0f;//thickness of lines when rasterizing in line mode
 	std::string fragShader="frag";
 	std::string vertShader="vert";
 };
