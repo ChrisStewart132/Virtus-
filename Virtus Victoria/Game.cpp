@@ -14,8 +14,9 @@ Game::Game(Window* _windowPtr, Models* _modelsptr)
 
 	//load gun types
 	gun g20mm;
-	g20mm.ammo = 100;
-	g20mm.fireRate = 0.2f;
+	g20mm.ammo = 300;
+	g20mm.fireRate = 0.3f;
+	g20mm.muzzleVelocity = 72;
 	g20mm.barrel = glm::vec3(0.05f, -0.031f, -0.251f);
 	g20mm.mountingPoint = glm::vec3(0.0f);//gun models 0,0,0 position = mounting position
 	gunTypeList.push_back(g20mm);
@@ -23,7 +24,7 @@ Game::Game(Window* _windowPtr, Models* _modelsptr)
 	//load turret types
 	turret t20mm;
 	t20mm.horizontalRotationPoint = glm::vec3(0.0f);
-	t20mm.rotationSpeed = glm::vec3(30.0f);
+	t20mm.rotationSpeed = glm::vec3(100.0f);
 	t20mm.mountingPoint = glm::vec3(0.0f);
 	t20mm.gunMountingPoint = glm::vec3(0.2f, 1.9f, 0.0f);
 	turretTypeList.push_back(t20mm);
@@ -52,10 +53,47 @@ Game::Game(Window* _windowPtr, Models* _modelsptr)
 	light4.colour = glm::vec3(c, c, c);
 	light1.intensity = glm::vec3(intensityTemp);
 	createLight(light4);
+
 }
 
 void Game::createLight(light _light) {
 	lights.push_back(_light);
+}
+
+
+
+void Game::createGun()
+{
+	glm::vec3 offset = glm::vec3(0.5f, 1.5, 10.f);
+	//entity player;
+	player.gunPtr = &gunTypeList[0];
+	modelsPtr->loadModel("20mm gun");
+	player.gunUnitListIndex = modelsPtr->unitList.size() - 1;
+	modelsPtr->unitList[player.gunUnitListIndex].antiGravity = true;
+	modelsPtr->unitList[player.gunUnitListIndex].move(offset);
+
+	for (uint32_t i = 0; i < player.gunPtr->ammo; i++) {
+		modelsPtr->loadModel("20mm round");
+		if (i == 0) {
+			player.projectileUnitListIndex = modelsPtr->unitList.size() - 1;
+		}
+		modelsPtr->unitList[player.projectileUnitListIndex + i].move(offset);
+		modelsPtr->unitList[player.projectileUnitListIndex + i].antiGravity = true;
+	}
+
+	entityList.push_back(player);
+
+}
+
+void Game::shootGun(entity _entity)
+{
+	for (int i = 0; i < _entity.gunPtr->ammo; i++) {
+		if (modelsPtr->unitList[_entity.projectileUnitListIndex + i].v == glm::vec3(0.0f)) {//todo need to specify available ammo
+			modelsPtr->unitList[_entity.projectileUnitListIndex + i].v = modelsPtr->unitList[_entity.projectileUnitListIndex + i].getDirection() * glm::vec3(_entity.gunPtr->muzzleVelocity);
+			modelsPtr->unitList[_entity.projectileUnitListIndex + i].antiGravity = false;
+			break;
+		}
+	}
 }
 
 void Game::createSentry()
@@ -66,7 +104,7 @@ void Game::createSentry()
 	sentry.projectilePtr = &projectileTypeList[0];
 
 	modelsPtr->loadModel("turret");
-	unit* turretUnitPtr = modelsPtr->unitList.data();
+	//unit* turretUnitPtr = modelsPtr->unitList.data();
 	sentry.turretUnitListIndex = modelsPtr->unitList.size() - 1;//1
 
 	modelsPtr->loadModel("20mm gun");
@@ -85,12 +123,12 @@ void Game::createSentry()
 	modelsPtr->unitList[sentry.gunUnitListIndex].yawPos = modelsPtr->unitList[sentry.gunUnitListIndex].pos - sentry.turretPtr->gunMountingPoint;//set yaw pos as centre of turret
 	modelsPtr->unitList[sentry.gunUnitListIndex].yawPos.y += sentry.turretPtr->gunMountingPoint.y;//raise yawPos to height of gun mount (for pitch calc)
 	
-	glm::vec3 projectileOffset = sentry.turretPtr->gunMountingPoint+glm::vec3(0,0,-1)+sentry.gunPtr->barrel;//sentry.gunPtr->barrel
+	glm::vec3 projectileOffset = sentry.turretPtr->gunMountingPoint+glm::vec3(0,0,-0.8F)+sentry.gunPtr->barrel;//sentry.gunPtr->barrel
 	for (uint32_t i = 0; i < sentry.gunPtr->ammo; i++) {
 		modelsPtr->unitList[sentry.projectileUnitListIndex + i].move(projectileOffset);
 		modelsPtr->unitList[sentry.projectileUnitListIndex + i].yawPos = modelsPtr->unitList[sentry.gunUnitListIndex + i].pos - sentry.turretPtr->gunMountingPoint;
 		modelsPtr->unitList[sentry.projectileUnitListIndex + i].yawPos.y += sentry.turretPtr->gunMountingPoint.y;
-		modelsPtr->unitList[sentry.projectileUnitListIndex + i].yawPos.z -= -1;
+		modelsPtr->unitList[sentry.projectileUnitListIndex + i].yawPos.z -= -0.8F;
 		modelsPtr->unitList[sentry.projectileUnitListIndex + i].yawPos -= sentry.gunPtr->barrel;
 	}
 	
@@ -331,28 +369,158 @@ void Game::moveCamera(double mousePosX, double mousePosY, glm::vec3 &cameraPosit
 
 glm::mat4 Game::fpsCamera(double mousePosX, double mousePosY, glm::vec3 &cameraPosition, glm::vec3 &cameraPoint)
 {
-	//global values
-	float roll, pitch, yaw;
-	glm::vec3 eyeVector;
-	glm::mat4 viewMatrix;
-	//global values
+	//todo control cameraPosition movement through physics not here (only control cameraPoint relative to cameraPosition)
+	const glm::vec3 up = glm::vec3(0, 1, 0);
+	const glm::vec3 right = glm::vec3(1, 0, 0);
+	const glm::vec3 forward = glm::vec3(0, 0, -1);
+	static float roll = 0, pitch = 0, yaw = 0;//camera bearing
+	float yRot, xRot;
+	glm::vec3 position = cameraPosition;
 
-	float dx = 0;
-	float dz = 0;
-	if (windowPtr->isKeyPressed(GLFW_KEY_W)) {
-		dz = -2;
+	
+
+	//move camera back to 0,0 and default orientation
+	glm::mat4 t = glm::translate(glm::mat4(1.0f), -position);
+	glm::mat4 x = glm::rotate(glm::mat4(1.0f), glm::radians(-pitch), right);
+	glm::mat4 y = glm::rotate(glm::mat4(1.0f), glm::radians(-yaw), up);
+	glm::mat4 matrix = x*y;//roation matrix
+	cameraPoint = t * glm::vec4(cameraPoint, 1.0f);//point-pos, 0,0,-1
+	cameraPoint = matrix * glm::vec4(cameraPoint, 1.0f);
+	//move camera back to 0,0 and default orientation
+
+	///////move gun
+	for (int i = modelsPtr->unitList[player.gunUnitListIndex].vertexStart; i < modelsPtr->unitList[player.gunUnitListIndex].vertexStart + modelsPtr->unitList[player.gunUnitListIndex].unitTypePtr->vertices.size(); i++) {
+		modelsPtr->vertices[i].pos = t * glm::vec4(modelsPtr->vertices[i].pos, 1.0f);
+		modelsPtr->vertices[i].pos = matrix * glm::vec4(modelsPtr->vertices[i].pos, 1.0f);
 	}
-	if (windowPtr->isKeyPressed(GLFW_KEY_S)) {
-		dz = 2;
+	//move ammo in gun
+	for (int i = 0; i < player.gunPtr->ammo;i++) {
+		if (modelsPtr->unitList[player.projectileUnitListIndex + i].antiGravity) {
+			for (int j = modelsPtr->unitList[player.projectileUnitListIndex + i].vertexStart; j < modelsPtr->unitList[player.projectileUnitListIndex + i].vertexStart + modelsPtr->unitList[player.projectileUnitListIndex + i].unitTypePtr->vertices.size(); j++) {
+				modelsPtr->vertices[j].pos = t * glm::vec4(modelsPtr->vertices[j].pos, 1.0f);
+				modelsPtr->vertices[j].pos = matrix * glm::vec4(modelsPtr->vertices[j].pos, 1.0f);
+			}
+		}
+	}
+	////////
+
+	yRot = ((float(windowPtr->getWidth()) / 2) - mousePosX) / 10;
+	xRot = ((float(windowPtr->getHeight()) / 2) - mousePosY-0.5) / 10;
+
+	//printf("orientation : %f = %f\n", pitch, xRot);
+
+	if (xRot + pitch >= 80) {
+		xRot = 0;
+	}else if(xRot + pitch <= -80) {
+		xRot = 0;
+	}
+
+	static bool jumping;
+	static int jumpTimer;
+	if (jumping) {
+		jumpTimer += 1;
+		if (jumpTimer > (80)) {
+			jumpTimer = 0;
+			jumping = false;
+		}
+	}
+	float dx = 0;
+	float dy = 0;
+	float dz = 0;
+	const float strafeFactor = 0.05f;
+	if (windowPtr->isKeyPressed(GLFW_KEY_W) | windowPtr->isMousePressed(4)) {
+		dz -= 1 * strafeFactor;
+	}
+	if (windowPtr->isKeyPressed(GLFW_KEY_S) | windowPtr->isMousePressed(3)) {
+		dz += 1 * strafeFactor;
 	}
 	if (windowPtr->isKeyPressed(GLFW_KEY_A)) {
-		dz = -2;
+		dx -= 1 * strafeFactor;
 	}
 	if (windowPtr->isKeyPressed(GLFW_KEY_D)) {
-		dz = 2;
+		dx += 1 * strafeFactor;
 	}
-	
-	return glm::mat4(0);
+	if (windowPtr->isKeyPressed(GLFW_KEY_SPACE) && !jumping) {
+		dy += 2;
+		jumping = true;
+	}
+	if (windowPtr->isKeyPressed(GLFW_KEY_LEFT_CONTROL)) {
+		dy -= 1 * strafeFactor;
+	}
+	glm::vec3 fwd(0, 0, dz);
+	glm::vec3 side(dx, 0, 0);
+	glm::vec3 vertical(0, dy, 0);
+
+	y = glm::rotate(glm::mat4(1.0f), glm::radians(yaw + yRot), up);
+	x = glm::rotate(glm::mat4(1.0f), glm::radians(pitch + xRot), right);
+	t = glm::translate(glm::mat4(1.0f), position);
+	matrix = y*x;//roation matrix
+	fwd = matrix * glm::vec4(fwd, 1.0f);
+	side = matrix * glm::vec4(side, 1.0f);
+	vertical = matrix * glm::vec4(vertical, 1.0f);
+	cameraPoint = matrix * glm::vec4(cameraPoint, 1.0f);//rotate point+
+	cameraPoint = t * glm::vec4(cameraPoint, 1.0f);
+
+	///////
+	for (int i = modelsPtr->unitList[player.gunUnitListIndex].vertexStart; i < modelsPtr->unitList[player.gunUnitListIndex].vertexStart + modelsPtr->unitList[player.gunUnitListIndex].unitTypePtr->vertices.size(); i++) {
+		modelsPtr->vertices[i].pos = matrix * glm::vec4(modelsPtr->vertices[i].pos, 1.0f);
+		modelsPtr->vertices[i].pos = t * glm::vec4(modelsPtr->vertices[i].pos, 1.0f);
+		modelsPtr->vertices[i].pos += fwd + side + vertical;
+		modelsPtr->vertices[i].pos.y -= fwd.y + side.y + vertical.y;
+	}
+	for (int i = 0; i < player.gunPtr->ammo; i++) {
+		if (modelsPtr->unitList[player.projectileUnitListIndex + i].antiGravity) {
+			for (int j = modelsPtr->unitList[player.projectileUnitListIndex + i].vertexStart; j < modelsPtr->unitList[player.projectileUnitListIndex + i].vertexStart + modelsPtr->unitList[player.projectileUnitListIndex + i].unitTypePtr->vertices.size(); j++) {
+				modelsPtr->vertices[j].pos = matrix * glm::vec4(modelsPtr->vertices[j].pos, 1.0f);
+				modelsPtr->vertices[j].pos = t * glm::vec4(modelsPtr->vertices[j].pos, 1.0f);
+				modelsPtr->vertices[j].pos += fwd + side + vertical;
+				modelsPtr->vertices[j].pos.y -= fwd.y + side.y + vertical.y;
+			}
+		}
+	}
+	////////
+
+	cameraPoint += fwd + side + vertical;
+	cameraPoint.y -= fwd.y + side.y;
+	cameraPosition += fwd + side + vertical;
+	cameraPosition.y -= fwd.y + side.y;
+	if (cameraPosition.y > 1.86f) {
+		cameraPoint.y -= 9.81f / 144.f;
+		cameraPosition.y -= 9.81f / 144.f;
+	}
+	if (cameraPosition.y < 1.86f) {
+		cameraPoint.y += 1.86f - cameraPosition.y;
+		cameraPosition.y += 1.86f - cameraPosition.y;
+	}
+
+
+	yaw += yRot;
+	pitch += xRot;
+
+	if (yaw > 360.0f) { yaw -= 360.0f; }
+	if (pitch > 80) { pitch -= 80; }
+	if (yaw < -360.0f) { yaw += 360.0f; }
+	if (pitch < -80) { pitch += 80; }
+
+	for (int i = 0; i < player.gunPtr->ammo; i++) {
+		modelsPtr->unitList[player.projectileUnitListIndex + i].angle.y = yaw;
+		modelsPtr->unitList[player.projectileUnitListIndex + i].angle.x = pitch;
+	}
+	modelsPtr->unitList[player.gunUnitListIndex].angle.y = yaw;
+	modelsPtr->unitList[player.gunUnitListIndex].angle.x = pitch;
+
+
+
+
+	//modelsPtr->unitList[4].move(-modelsPtr->unitList[4].pos);
+	//modelsPtr->unitList[4].move(cameraPosition + glm::vec3(0.3f, -0.2f, -0.2f));
+
+
+
+
+
+	windowPtr->centreMouse();
+	return glm::lookAt(cameraPosition, cameraPoint, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 float Game::calculateAngle(glm::vec2 v1, glm::vec2 v2)

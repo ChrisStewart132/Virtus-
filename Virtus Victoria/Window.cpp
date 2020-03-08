@@ -15,16 +15,19 @@ Window::Window(config* _configPtr)
 
 	glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, 1);
+	//glfwWindowHint(GLFW_RESIZABLE, 1);
 	glfwWindowHint(GLFW_MAXIMIZED, 1);
-	glfwWindowHint(GLFW_FLOATING, 1);
-	glfwWindowHint(GLFW_AUTO_ICONIFY, 0);
-	glfwWindowHint(GLFW_FOCUS_ON_SHOW, 0);
-	glfwWindowHint(GLFW_FOCUSED, 0);
+	//glfwWindowHint(GLFW_FLOATING, 1);
+	//glfwWindowHint(GLFW_AUTO_ICONIFY, 0);
+	//glfwWindowHint(GLFW_FOCUS_ON_SHOW, 0);
+	//glfwWindowHint(GLFW_FOCUSED, 0);
 	glfwWindowHint(GLFW_DECORATED, 0);
-	glfwWindowHint(GLFW_REFRESH_RATE, GLFW_DONT_CARE);
+	//glfwWindowHint(GLFW_REFRESH_RATE, GLFW_DONT_CARE);
 
-	glfwWindowHint(GLFW_VISIBLE, 1);
+	
+
+
+	//glfwWindowHint(GLFW_VISIBLE, 1);
 	glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, _configPtr->transparentWindow);
 	
 	glfwWindow = glfwCreateWindow(windowWidth, windowHeight, "Virtus", nullptr, nullptr);
@@ -37,6 +40,7 @@ Window::Window(config* _configPtr)
 	glfwSetCursorPosCallback(glfwWindow, cursor_position_callback);
 	glfwSetScrollCallback(glfwWindow, scroll_callback);
 	glfwSetInputMode(glfwWindow, GLFW_STICKY_KEYS, 1);
+	glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 }
 
 
@@ -117,4 +121,9 @@ float Window::getfps()
 	}
 	ctime = 0;
 	return prevFrame;
+}
+
+void Window::centreMouse()
+{
+	glfwSetCursorPos(glfwWindow, windowWidth / 2, windowHeight / 2);
 }

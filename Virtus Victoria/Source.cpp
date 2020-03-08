@@ -61,8 +61,8 @@ int main() {
 
 	simpleConfig.windowWidth = 2560.0/1.f;
 	simpleConfig.windowHeight = 1421.0 / 1.f;
-	simpleConfig.viewWidth = simpleConfig.windowWidth/1.9f;
-	simpleConfig.viewHeight = simpleConfig.windowHeight/1.9f;
+	simpleConfig.viewWidth = 1;// simpleConfig.windowWidth / 1000.1f;
+	simpleConfig.viewHeight = 1;// simpleConfig.windowHeight / 1000.1f;
 
 	simpleConfig.swapChainCount = 1;//not implemented
 
@@ -78,7 +78,7 @@ int main() {
 	simpleConfig.transparentWindow = 0;
 	simpleConfig.windowTransparency = 0.9f;
 
-	simpleConfig.multipleViewports = 1;
+	//simpleConfig.multipleViewports = 1;
 
 	simpleConfig.check();
 
@@ -97,7 +97,7 @@ int main() {
 	assets.push_back({ "t62",30000 });
 	assets.push_back({ "t-90a",50000 });
 	assets.push_back({ "a4",13500 });
-	assets.push_back({ "t-54",40000 });
+	assets.push_back({ "ak47",10 });
 
 	for (int i = 0; i < unitTypeCount; i++) {
 		unitTypeArray[i].name = assets[i].name;
@@ -117,6 +117,7 @@ int main() {
 	Game game(&virtusWindow, &models);
 
 	game.createSentry();
+	game.createGun();
 	models.transformUnits();
 	models.loadHitboxes();
 
@@ -160,6 +161,7 @@ int main() {
 	pipelineInfo pipelineInfo2;
 	pipelineInfo2.polygonMode = VK_POLYGON_MODE_LINE;
 	pipelineInfo2.colours = VK_COLOR_COMPONENT_G_BIT;
+	pipelineInfo2.rasterLineWidth = 3.f;
 	if (!simpleConfig.lighting) {
 		pipelineInfo2.fragShader = "frag2";
 		pipelineInfo2.vertShader = "vert2";
@@ -170,7 +172,7 @@ int main() {
 	pipelineInfo hitboxPipelineInfo;
 	hitboxPipelineInfo.polygonMode = VK_POLYGON_MODE_LINE;
 	hitboxPipelineInfo.colours = VK_COLOR_COMPONENT_G_BIT;
-	hitboxPipelineInfo.rasterLineWidth = 0.5f;
+	hitboxPipelineInfo.rasterLineWidth = 0.666f;
 	if (!simpleConfig.lighting) {
 		hitboxPipelineInfo.fragShader = "frag2";
 		hitboxPipelineInfo.vertShader = "vert2";

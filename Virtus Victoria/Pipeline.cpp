@@ -138,7 +138,7 @@ void Pipeline::createGraphicsPipeline()
 	viewportState.scissorCount = scissors.size();
 	viewportState.pScissors = scissors.data();
 
-	std::array<VkDynamicState,2> dynamicStates = { VK_DYNAMIC_STATE_SCISSOR,VK_DYNAMIC_STATE_VIEWPORT };
+	std::array<VkDynamicState,2> dynamicStates = { VK_DYNAMIC_STATE_SCISSOR,VK_DYNAMIC_STATE_VIEWPORT};
 	VkPipelineDynamicStateCreateInfo dynamicInfo = {};
 	dynamicInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 	dynamicInfo.dynamicStateCount = dynamicStates.size();

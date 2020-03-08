@@ -159,11 +159,14 @@ void Models::loadModels()
 	unitList[2].move(glm::vec3(-400.0f, 0.0f, -200.0f));
 
 
-	//loadModel("a4");
-	//unitList[3].move(glm::vec3(0.0f, 0.0f, -20.0f));
+	loadModel("a4");
+	unitList[3].move(glm::vec3(1.0f, 1.0f, -10.0f));
+	unitList[3].antiGravity = true;
 
-	//loadModel("t-90a");
-	//unitList[3].move(glm::vec3(0.0f, 0.0f, -20.0f));
+	//loadModel("20mm gun");
+	////unitList[4].move(glm::vec3(0.5f, 1.5f, 10.f));
+	//unitList[4].move(glm::vec3(0.5f, 1.5, 10.f));
+	//unitList[4].antiGravity = true;
 
 	//loadModel("t-54");
 	//unitList[4].move(glm::vec3(10.0f, 0.0f, -20.0f));

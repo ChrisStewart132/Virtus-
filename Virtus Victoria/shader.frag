@@ -24,7 +24,7 @@ void main() {
 
 	
 	int i = 0;
-
+	
 	//for(int i = 0;i<4;i++){		
 		vec3 totalDiffuse = vec3(0.0);
 		vec3 totalSpecular = vec3(0.0);

@@ -9,6 +9,7 @@
 #include "Models.h"
 #include "Descriptors.h"
 
+
 class Game
 {
 private:
@@ -19,7 +20,7 @@ private:
 	glm::vec2 cameraClickedPos;
 	glm::vec2 cameraAngle = { 0.0f, 0.0f };
 
-	
+	entity player;
 public:
 	std::vector<light> lights;
 	void createLight(light _light);
@@ -30,6 +31,11 @@ public:
 	std::vector<sentry> sentryTypeList;
 
 	std::vector<sentry> sentryList;
+	std::vector<entity> entityList;
+	
+
+	void createGun();
+	void shootGun(entity _entity);
 	void createSentry();
 	void aimSentry(sentry _sentry, glm::vec3 _enemy);
 	void shootSentry(sentry _sentry);

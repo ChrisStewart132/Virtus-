@@ -43,5 +43,6 @@ public:
 	static void getMousePos(double& x, double& y);
 	static void getMouseScroll(double& y);
 	float getfps();
+	void centreMouse();
 };
 

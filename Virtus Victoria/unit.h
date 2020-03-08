@@ -348,14 +348,8 @@ struct unitType {
 	std::vector<Vertex> vertices;
 	glm::vec3 COM = { 0.0f,0.0f,0.0f };
 	float mass;
-	//hitbox hitbox;
-	unitType() {
-		//hitbox.max = glm::vec3(0.0f);
-		//hitbox.min = glm::vec3(0.0f);
-		//hitbox.calculateHitbox(vertices);
-	}
+	unitType() {}
 	~unitType() {}
-
 };
 
 class unit {
@@ -431,13 +425,12 @@ public:
 	//glm::vec3 a = glm::vec3(0);
 	glm::vec3 v = glm::vec3(0);//velocity
 	glm::vec3 w = glm::vec3(0);//angular velocity
-	//glm::vec3 aw = glm::vec3(0);//angular acceleration
+	//glm::vec3 alpha = glm::vec3(0);//angular acceleration
 	hitbox hitbox;
 	unit(unitType* _unitTypePtr, uint32_t _vertexStart) {
 		unitTypePtr = _unitTypePtr;
 		vertexStart = _vertexStart;
 		pos = unitTypePtr->COM;
-		//hitbox = unitTypePtr->hitbox;
 		hitbox.calculateHitbox(unitTypePtr->vertices, unitTypePtr->vertices.size());
 		hitbox.createCubeMesh();
 		m = unitTypePtr->mass;
@@ -527,8 +520,8 @@ public:
 	void transform(std::vector<Vertex> &_vertices) {	
 		//return mesh back to original orientation (negative angle and translation matrix)
 		glm::mat4 t = glm::translate(glm::mat4(1.0f), -pos- yawPos);
-		glm::mat4 y = glm::rotate(glm::mat4(1.0f), glm::radians(-angle.y), up);
 		glm::mat4 x = glm::rotate(glm::mat4(1.0f), glm::radians(-angle.x), right);
+		glm::mat4 y = glm::rotate(glm::mat4(1.0f), glm::radians(-angle.y), up);
 		//glm::mat4 z = glm::rotate(glm::mat4(1.0f), glm::radians(-angle.z), forward);
 		matrix = x*y;	
 		for (uint32_t i = vertexStart; i < vertexStart + unitTypePtr->vertices.size(); i++) {
@@ -574,12 +567,11 @@ struct construct {
 //misc struts
 struct projectile {
 	float drag = 0.20f;
-	
-	
 };
 
 struct gun {
 	uint32_t ammo;
+	uint32_t muzzleVelocity;
 	float fireRate;
 	double cooldown = 0;
 	glm::vec3 barrel;
@@ -590,12 +582,16 @@ struct turret {
 	glm::vec3 mountingPoint, gunMountingPoint, horizontalRotationPoint, rotationSpeed;
 };
 
-
 struct sentry {
 	projectile *projectilePtr;
 	gun *gunPtr;
 	turret *turretPtr;
 	uint32_t turretUnitListIndex, gunUnitListIndex, projectileUnitListIndex;
+};
+
+struct entity {
+	gun* gunPtr;
+	uint32_t gunUnitListIndex, projectileUnitListIndex;
 };
 
 
