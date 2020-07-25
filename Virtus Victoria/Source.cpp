@@ -61,8 +61,8 @@ int main() {
 
 	simpleConfig.windowWidth = 2560.0/1.f;
 	simpleConfig.windowHeight = 1421.0 / 1.f;
-	simpleConfig.viewWidth = 1;// simpleConfig.windowWidth / 1000.1f;
-	simpleConfig.viewHeight = 1;// simpleConfig.windowHeight / 1000.1f;
+	simpleConfig.viewWidth = 100;// simpleConfig.windowWidth / 1000.1f;
+	simpleConfig.viewHeight = 100;// simpleConfig.windowHeight / 1000.1f;
 
 	simpleConfig.swapChainCount = 1;//not implemented
 
@@ -98,6 +98,7 @@ int main() {
 	assets.push_back({ "t-90a",50000 });
 	assets.push_back({ "a4",13500 });
 	assets.push_back({ "ak47",10 });
+
 
 	for (int i = 0; i < unitTypeCount; i++) {
 		unitTypeArray[i].name = assets[i].name;

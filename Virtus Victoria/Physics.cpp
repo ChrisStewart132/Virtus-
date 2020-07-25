@@ -26,7 +26,6 @@ Physics::Physics()
 {
 }
 
-
 Physics::~Physics()
 {
 }

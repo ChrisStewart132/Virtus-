@@ -140,7 +140,7 @@ void Renderer::update()
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-	beginInfo.pInheritanceInfo = nullptr; // Optional
+	//beginInfo.pInheritanceInfo = nullptr; // Optional
 	vkBeginCommandBuffer(commandBuffers[0], &beginInfo);
 	//vkCmdBeginRenderPass
 	VkRenderPassBeginInfo renderPassInfo = {};
@@ -191,7 +191,8 @@ void Renderer::update()
 	textureInfo texturePushConstant;
 
 	moveUnits();//change vertex data
-				//update and bind ubo
+
+	//update and bind ubo
 	updateUniformBuffer();//vkmapMemory-ubo object-vkunmapMemory
 
 	//bind vertex data
@@ -237,11 +238,11 @@ void Renderer::update()
 		textureInfo texturePushConstant;
 		vkCmdBindDescriptorSets(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].pipelineLayout, 0, 1, &descriptorsPtr->descriptorSets[0], 0, nullptr);
 		if (setupPtr->configPtr->textures) {
-			if (windowPtr->isKeyPressed(GLFW_KEY_1)) {//if pressing 1 will be rendering line mode, also render the hitboxes of each unit here
+			//if (windowPtr->isKeyPressed(GLFW_KEY_1)) {//if pressing 1 will be rendering line mode, also render the hitboxes of each unit here
 				texturePushConstant.textureIndex = 4;
 				vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(texturePushConstant), &texturePushConstant);//or VK_SHADER_STAGE_VERTEX_BIT if push uses this flag
 				vkCmdDraw(commandBuffers[0], hitboxVertexCount, 1, modelsPtr->vertices.size() - hitboxVertexCount, 0);//
-			}
+			//}
 		}
 		else {//
 			texturePushConstant.textureIndex = 5;
@@ -251,9 +252,9 @@ void Renderer::update()
 	}
 
 	//render 2nd viewport if()
-	if (windowPtr->isKeyPressed(GLFW_KEY_3) | 1) {	
+	if (windowPtr->isKeyPressed(GLFW_KEY_3) || 0) {	
 		pipelineIndex = 3;
-		float viewportSizeFactor = 1;
+		float viewportSizeFactor = 4;//1 = full scale higher for smaller left bottom viewport
 		viewports[0].minDepth = 0.0f;
 		viewports[0].maxDepth = 0.9f;
 		viewports[0].width = (float)setupPtr->configPtr->windowWidth / viewportSizeFactor;
@@ -330,12 +331,12 @@ void Renderer::input()
 
 void Renderer::run()
 {
-	windowPtr->centreMouse();
+	windowPtr->centreMouse();//set mouse cursor to centre of screen(width,height)/2
 	Sleep(100);
 	while (!glfwWindowShouldClose(setupPtr->windowPtr)) {		
 		glfwPollEvents();	
-		input();		
-		drawFrame();	
+		input();//cache mouse pos x,y in render class		
+		drawFrame();//main function	
 		float fps = windowPtr->getfps();	
 		if (windowPtr->isKeyPressed(GLFW_KEY_ESCAPE) | windowPtr->isMousePressed(2)) {
 			glfwSetWindowShouldClose(setupPtr->windowPtr, 1);
@@ -357,10 +358,10 @@ void Renderer::updateUniformBuffer()
 	//ubo.view = glm::lookAt(cameraPosition, cameraPoint, glm::vec3(0.0f, 1.0f, 0.0f));//eye,centre,up
 
 	//ubo.view = glm::lookAt(glm::vec3(2, 0, 0), glm::vec3(2, 0, -1), glm::vec3(0, 1, 0));
-	ubo.proj = glm::perspective(glm::radians(60.0f), setupPtr->configPtr->windowWidth / (float)setupPtr->configPtr->windowHeight, 0.1f, 1000.0f);
+	ubo.proj = glm::perspective(glm::radians(90.0f), setupPtr->configPtr->windowWidth / (float)setupPtr->configPtr->windowHeight, 0.1f, 1000.0f);
 	ubo.proj[1][1] *= -1;// makes the y axis projected to the same as vulkans
 	//ubo.lightPosition = cameraPosition;//lightPos;//cameraPosition;
-	light sun;
+	static light sun;
 	sun.pos = { 0,2,-2 };
 	sun.colour = glm::vec3(1.0f, 0.0f, 0.0f);
 	sun.intensity = glm::vec3(1.0f);
@@ -412,7 +413,7 @@ void Renderer::moveUnits()
 	glm::vec3 gradient;
 	static int d;
 	gradient = mouseWorld;
-	if (windowPtr->isMousePressed(1)) {
+	if (windowPtr->isMousePressed(1)) {//right click
 		d++;
 		modelsPtr->unitList[1].move(-modelsPtr->unitList[1].pos);//move back to 0,0
 		modelsPtr->unitList[1].move(cameraPosition);
@@ -539,6 +540,14 @@ void Renderer::moveUnits()
 	//printf("velocity: %f,%f,%f\n", modelsPtr->unitList[1].v.x, modelsPtr->unitList[1].v.y, modelsPtr->unitList[1].v.z);
 
 	
+
+
+
+
+
+
+
+
 
 	for (uint32_t i = 1; i < modelsPtr->unitList.size(); i++) {	//unitList[0] = terrain
 		

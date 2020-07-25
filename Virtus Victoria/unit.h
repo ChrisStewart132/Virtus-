@@ -15,127 +15,139 @@
 
 struct hitbox {
 	glm::vec3 max, min;
-	glm::vec3 cubeVertexColour = { 1.0f,1.0f,1.0f };
+	glm::vec3 cubeVertexColour = { 1.0f,0.0f,0.0f };
 	std::vector<Vertex> cubeVertices;
 
 	void createCubeMesh() {//create 36 vertices, only call once!
+
+		//top
+		glm::vec3 LEFT_TOP_FRONT = { min.x,max.y,min.z };
+		glm::vec3 RIGHT_TOP_FRONT = { max.x,max.y,min.z };
+		glm::vec3 LEFT_TOP_BACK = { min.x,max.y,max.z };
+		glm::vec3 RIGHT_TOP_BACK = { max.x,max.y,max.z };
+		//bottom
+		glm::vec3 LEFT_BOT_FRONT = { min.x,min.y,min.z };
+		glm::vec3 RIGHT_BOT_FRONT = { max.x,min.y,min.z };
+		glm::vec3 LEFT_BOT_BACK = { min.x,min.y,max.z };
+		glm::vec3 RIGHT_BOT_BACK = { max.x,min.y,max.z };
+
 		//36 vertices (cube) each nhitbox
 		for (int j = 0; j < 18; j++) {
 			Vertex vertex;
 			if (j == 0) {//
-				vertex.pos = { min.x,min.y,max.z };
+				vertex.pos = LEFT_BOT_BACK;//back
 			}
 			else if (j == 1) {
-				vertex.pos = { max.x,min.y,max.z };
+				vertex.pos = RIGHT_BOT_BACK;
 			}
 			else if (j == 2) {
-				vertex.pos = { max.x,max.y,max.z };
+				vertex.pos = RIGHT_TOP_BACK;
 			}				//				
 			else if (j == 3) {
-				vertex.pos = { max.x,max.y,max.z };
+				vertex.pos = RIGHT_TOP_BACK;//back
 			}
 			else if (j == 4) {
-				vertex.pos = { min.x,max.y,max.z };
+				vertex.pos = LEFT_TOP_BACK;
 			}
 			else if (j == 5) {
-				vertex.pos = { min.x,min.y,max.z };
+				vertex.pos = LEFT_BOT_BACK;
 			}//						 		
 			else if (j == 6) {
-				vertex.pos = { max.x,min.y,max.z };
+				vertex.pos = RIGHT_BOT_BACK;//right
 			}
 			else if (j == 7) {
-				vertex.pos = { max.x,min.y,min.z };
+				vertex.pos = RIGHT_BOT_FRONT;
 			}
 			else if (j == 8) {
-				vertex.pos = { max.x,max.y,min.z };
+				vertex.pos = RIGHT_TOP_FRONT;
 			}
 			else if (j == 9) {
-				vertex.pos = { max.x,max.y,min.z };
+				vertex.pos = RIGHT_TOP_FRONT;//right
 			}
 			else if (j == 10) {
-				vertex.pos = { max.x,max.y,max.z };
+				vertex.pos = RIGHT_TOP_BACK;
 			}
 			else if (j == 11) {
-				vertex.pos = { max.x,min.y,max.z };
+				vertex.pos = RIGHT_BOT_BACK;
 			}//						 		
 			else if (j == 12) {
-				vertex.pos = { min.x,max.y,max.z };
+				vertex.pos = LEFT_TOP_BACK;//top
 			}
 			else if (j == 13) {
-				vertex.pos = { max.x,max.y,max.z };
+				vertex.pos = RIGHT_TOP_BACK;
 			}
 			else if (j == 14) {
-				vertex.pos = { max.x,max.y,min.z };
+				vertex.pos = RIGHT_TOP_FRONT;
 			}
 			else if (j == 15) {
-				vertex.pos = { max.x,max.y,min.z };
+				vertex.pos = RIGHT_TOP_FRONT;//top
 			}
 			else if (j == 16) {
-				vertex.pos = { min.x,max.y,min.z };
+				vertex.pos = LEFT_TOP_FRONT;
 			}
 			else if (j == 17) {
-				vertex.pos = { min.x,max.y,max.z };
+				vertex.pos = LEFT_TOP_BACK;
 			}
-			vertex.colour = cubeVertexColour;
+			vertex.colour = cubeVertexColour;//back, right, top 		
 			vertex.texCoord = { 0.0f,0.0f };
 			vertex.normal = { 0.5f,0.5f,0.5f };
 			cubeVertices.push_back(vertex);
 		}
-		for (int j = 35; j > 17; j--) {
+		for (int j = 18; j < 36; j++) {//front, left, bottom
 			Vertex vertex;
 			if (j == 18) {//
-				vertex.pos = { min.x,min.y,min.z };
+				vertex.pos = LEFT_BOT_FRONT;//front
 			}
 			else if (j == 19) {
-				vertex.pos = { max.x,min.y,min.z };
+				vertex.pos = LEFT_TOP_FRONT;//
 			}
 			else if (j == 20) {
-				vertex.pos = { max.x,max.y,min.z };
+				vertex.pos = RIGHT_TOP_FRONT;//
 			}
 			else if (j == 21) {
-				vertex.pos = { max.x,max.y,min.z };
+				vertex.pos = RIGHT_TOP_FRONT;//front
 			}
 			else if (j == 22) {
-				vertex.pos = { min.x,max.y,min.z };
+				vertex.pos = RIGHT_BOT_FRONT;//
 			}
 			else if (j == 23) {
-				vertex.pos = { min.x,min.y,min.z };
+				vertex.pos = LEFT_BOT_FRONT;//
 			}//								
 			else if (j == 24) {
-				vertex.pos = { min.x,min.y,max.z };
+				vertex.pos = LEFT_BOT_BACK;//left
 			}
 			else if (j == 25) {
-				vertex.pos = { min.x,min.y,min.z };
+				vertex.pos = LEFT_TOP_FRONT;//
 			}
 			else if (j == 26) {
-				vertex.pos = { min.x,max.y,min.z };
+				vertex.pos = LEFT_BOT_FRONT;//
 			}
 			else if (j == 27) {
-				vertex.pos = { min.x,max.y,min.z };
+				vertex.pos = LEFT_TOP_FRONT;//left
 			}
 			else if (j == 28) {
-				vertex.pos = { min.x,max.y,max.z };
+				vertex.pos = LEFT_BOT_BACK;//
 			}
 			else if (j == 29) {
-				vertex.pos = { min.x,min.y,max.z };
+				vertex.pos = LEFT_TOP_BACK;//
 			}
 			else if (j == 30) {
-				vertex.pos = { min.x,min.y,max.z };
+				vertex.pos = LEFT_BOT_BACK;//bottom
 			}
 			else if (j == 31) {
-				vertex.pos = { max.x,min.y,max.z };
+				vertex.pos = RIGHT_BOT_FRONT;
 			}
 			else if (j == 32) {
-				vertex.pos = { max.x,min.y,min.z };
+				vertex.pos = RIGHT_BOT_BACK;
 			}
 			else if (j == 33) {
-				vertex.pos = { max.x,min.y,min.z };
+				vertex.pos = RIGHT_BOT_FRONT;//bottom
 			}
 			else if (j == 34) {
-				vertex.pos = { min.x,min.y,min.z };
+				vertex.pos = LEFT_BOT_BACK;
 			}
 			else if (j == 35) {
-				vertex.pos = { min.x,min.y,max.z };
+				vertex.pos = LEFT_BOT_FRONT;
 			}
 			vertex.colour = cubeVertexColour;
 			vertex.texCoord = { 0.0f,0.0f };
@@ -146,122 +158,134 @@ struct hitbox {
 
 	void updateCubeMesh() {
 		//36 vertices (cube) each nhitbox
+
+		glm::vec3 LEFT_TOP_FRONT = { min.x,max.y,min.z };
+		glm::vec3 RIGHT_TOP_FRONT = { max.x,max.y,min.z };
+		glm::vec3 LEFT_TOP_BACK = { min.x,max.y,max.z };
+		glm::vec3 RIGHT_TOP_BACK = { max.x,max.y,max.z };
+		//bottom
+		glm::vec3 LEFT_BOT_FRONT = { min.x,min.y,min.z };
+		glm::vec3 RIGHT_BOT_FRONT = { max.x,min.y,min.z };
+		glm::vec3 LEFT_BOT_BACK = { min.x,min.y,max.z };
+		glm::vec3 RIGHT_BOT_BACK = { max.x,min.y,max.z };
+
+		//36 vertices (cube) each nhitbox
 		for (int j = 0; j < 18; j++) {
 			Vertex vertex;
 			if (j == 0) {//
-				vertex.pos = { min.x,min.y,max.z };
+				vertex.pos = LEFT_BOT_BACK;//back
 			}
 			else if (j == 1) {
-				vertex.pos = { max.x,min.y,max.z };
+				vertex.pos = RIGHT_BOT_BACK;
 			}
 			else if (j == 2) {
-				vertex.pos = { max.x,max.y,max.z };
+				vertex.pos = RIGHT_TOP_BACK;
 			}				//				
 			else if (j == 3) {
-				vertex.pos = { max.x,max.y,max.z };
+				vertex.pos = RIGHT_TOP_BACK;//back
 			}
 			else if (j == 4) {
-				vertex.pos = { min.x,max.y,max.z };
+				vertex.pos = LEFT_TOP_BACK;
 			}
 			else if (j == 5) {
-				vertex.pos = { min.x,min.y,max.z };
+				vertex.pos = LEFT_BOT_BACK;
 			}//						 		
 			else if (j == 6) {
-				vertex.pos = { max.x,min.y,max.z };
+				vertex.pos = RIGHT_BOT_BACK;//right
 			}
 			else if (j == 7) {
-				vertex.pos = { max.x,min.y,min.z };
+				vertex.pos = RIGHT_BOT_FRONT;
 			}
 			else if (j == 8) {
-				vertex.pos = { max.x,max.y,min.z };
+				vertex.pos = RIGHT_TOP_FRONT;
 			}
 			else if (j == 9) {
-				vertex.pos = { max.x,max.y,min.z };
+				vertex.pos = RIGHT_TOP_FRONT;//right
 			}
 			else if (j == 10) {
-				vertex.pos = { max.x,max.y,max.z };
+				vertex.pos = RIGHT_TOP_BACK;
 			}
 			else if (j == 11) {
-				vertex.pos = { max.x,min.y,max.z };
+				vertex.pos = RIGHT_BOT_BACK;
 			}//						 		
 			else if (j == 12) {
-				vertex.pos = { min.x,max.y,max.z };
+				vertex.pos = LEFT_TOP_BACK;//top
 			}
 			else if (j == 13) {
-				vertex.pos = { max.x,max.y,max.z };
+				vertex.pos = RIGHT_TOP_BACK;
 			}
 			else if (j == 14) {
-				vertex.pos = { max.x,max.y,min.z };
+				vertex.pos = RIGHT_TOP_FRONT;
 			}
 			else if (j == 15) {
-				vertex.pos = { max.x,max.y,min.z };
+				vertex.pos = RIGHT_TOP_FRONT;//top
 			}
 			else if (j == 16) {
-				vertex.pos = { min.x,max.y,min.z };
+				vertex.pos = LEFT_TOP_FRONT;
 			}
 			else if (j == 17) {
-				vertex.pos = { min.x,max.y,max.z };
+				vertex.pos = LEFT_TOP_BACK;
 			}
-			vertex.colour = cubeVertexColour;
+			vertex.colour = cubeVertexColour;//back, right, top 		
 			vertex.texCoord = { 0.0f,0.0f };
 			vertex.normal = { 0.5f,0.5f,0.5f };
 			cubeVertices[j] = vertex;
 		}
-		for (int j = 35; j > 17; j--) {
+		for (int j = 18; j < 36; j++) {//front, left, bottom
 			Vertex vertex;
 			if (j == 18) {//
-				vertex.pos = { min.x,min.y,min.z };
+				vertex.pos = LEFT_BOT_FRONT;//front
 			}
 			else if (j == 19) {
-				vertex.pos = { max.x,min.y,min.z };
+				vertex.pos = LEFT_TOP_FRONT;//
 			}
 			else if (j == 20) {
-				vertex.pos = { max.x,max.y,min.z };
+				vertex.pos = RIGHT_TOP_FRONT;//
 			}
 			else if (j == 21) {
-				vertex.pos = { max.x,max.y,min.z };
+				vertex.pos = RIGHT_TOP_FRONT;//front
 			}
 			else if (j == 22) {
-				vertex.pos = { min.x,max.y,min.z };
+				vertex.pos = RIGHT_BOT_FRONT;//
 			}
 			else if (j == 23) {
-				vertex.pos = { min.x,min.y,min.z };
+				vertex.pos = LEFT_BOT_FRONT;//
 			}//								
 			else if (j == 24) {
-				vertex.pos = { min.x,min.y,max.z };
+				vertex.pos = LEFT_BOT_BACK;//left
 			}
 			else if (j == 25) {
-				vertex.pos = { min.x,min.y,min.z };
+				vertex.pos = LEFT_TOP_FRONT;//
 			}
 			else if (j == 26) {
-				vertex.pos = { min.x,max.y,min.z };
+				vertex.pos = LEFT_BOT_FRONT;//
 			}
 			else if (j == 27) {
-				vertex.pos = { min.x,max.y,min.z };
+				vertex.pos = LEFT_TOP_FRONT;//left
 			}
 			else if (j == 28) {
-				vertex.pos = { min.x,max.y,max.z };
+				vertex.pos = LEFT_BOT_BACK;//
 			}
 			else if (j == 29) {
-				vertex.pos = { min.x,min.y,max.z };
+				vertex.pos = LEFT_TOP_BACK;//
 			}
 			else if (j == 30) {
-				vertex.pos = { min.x,min.y,max.z };
+				vertex.pos = LEFT_BOT_BACK;//bottom
 			}
 			else if (j == 31) {
-				vertex.pos = { max.x,min.y,max.z };
+				vertex.pos = RIGHT_BOT_FRONT;
 			}
 			else if (j == 32) {
-				vertex.pos = { max.x,min.y,min.z };
+				vertex.pos = RIGHT_BOT_BACK;
 			}
 			else if (j == 33) {
-				vertex.pos = { max.x,min.y,min.z };
+				vertex.pos = RIGHT_BOT_FRONT;//bottom
 			}
 			else if (j == 34) {
-				vertex.pos = { min.x,min.y,min.z };
+				vertex.pos = LEFT_BOT_BACK;
 			}
 			else if (j == 35) {
-				vertex.pos = { min.x,min.y,max.z };
+				vertex.pos = LEFT_BOT_FRONT;
 			}
 			vertex.colour = cubeVertexColour;
 			vertex.texCoord = { 0.0f,0.0f };
