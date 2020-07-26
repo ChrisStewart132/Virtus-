@@ -369,11 +369,12 @@ void Descriptors::createVertexBuffer()
 {
 	VkBufferCreateInfo bufferInfo = {};
 	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferInfo.size = sizeof(modelsPtr->vertices[0]) * modelsPtr->vertices.size();
+	//bufferInfo.size = sizeof(modelsPtr->vertices[0]) * modelsPtr->vertices.size();
+	bufferInfo.size = 128000000;
 	bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	vkCreateBuffer(setupPtr->device, &bufferInfo, nullptr, &vertexBuffer);
-
+	printf("vertex buffer size: %i\n", bufferInfo.size);
 	VkMemoryRequirements memRequirements;
 	vkGetBufferMemoryRequirements(setupPtr->device, vertexBuffer, &memRequirements);
 
@@ -388,7 +389,7 @@ void Descriptors::createVertexBuffer()
 	//
 	void* data;
 	vkMapMemory(setupPtr->device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
-	memcpy(data, modelsPtr->vertices.data(), (size_t)bufferInfo.size);
+	memcpy(data, modelsPtr->vertices.data(), (size_t)sizeof(modelsPtr->vertices[0]) * modelsPtr->vertices.size());
 	vkUnmapMemory(setupPtr->device, vertexBufferMemory);
 }
 

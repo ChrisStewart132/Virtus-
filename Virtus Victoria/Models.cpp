@@ -118,12 +118,179 @@ void Models::loadModel(std::string string)
 	//std::cout << vertices.size() << std::endl;
 }
 
+void Models::loadCube()
+
+{
+	static bool initialized = false;
+	static unitType cubeType;
+	if (!initialized) {
+		//cube model type
+		cubeType.name = "cube";
+		cubeType.mass = 1000;
+		cubeType.textureIndex = 4;
+
+		std::vector<Vertex> cubeVertices;
+		glm::vec3 max, min, location;
+		glm::vec3 cubeVertexColour = { 1.0f,0.0f,0.0f };
+		float r = 1.0f/2;
+		max.x = r;
+		min.x = -r;
+		max.y = r;
+		min.y = -r;
+		max.z = r;
+		min.z = -r;
+		//top
+		glm::vec3 LEFT_TOP_FRONT = { min.x,max.y,min.z };
+		glm::vec3 RIGHT_TOP_FRONT = { max.x,max.y,min.z };
+		glm::vec3 LEFT_TOP_BACK = { min.x,max.y,max.z };
+		glm::vec3 RIGHT_TOP_BACK = { max.x,max.y,max.z };
+		//bottom
+		glm::vec3 LEFT_BOT_FRONT = { min.x,min.y,min.z };
+		glm::vec3 RIGHT_BOT_FRONT = { max.x,min.y,min.z };
+		glm::vec3 LEFT_BOT_BACK = { min.x,min.y,max.z };
+		glm::vec3 RIGHT_BOT_BACK = { max.x,min.y,max.z };
+
+		//36 vertices (cube) each nhitbox
+		for (int j = 0; j < 18; j++) {
+			Vertex vertex;
+			if (j == 0) {//
+				vertex.pos = LEFT_BOT_BACK;//back
+			}
+			else if (j == 1) {
+				vertex.pos = RIGHT_BOT_BACK;
+			}
+			else if (j == 2) {
+				vertex.pos = RIGHT_TOP_BACK;
+			}				//				
+			else if (j == 3) {
+				vertex.pos = RIGHT_TOP_BACK;//back
+			}
+			else if (j == 4) {
+				vertex.pos = LEFT_TOP_BACK;
+			}
+			else if (j == 5) {
+				vertex.pos = LEFT_BOT_BACK;
+			}//						 		
+			else if (j == 6) {
+				vertex.pos = RIGHT_BOT_BACK;//right
+			}
+			else if (j == 7) {
+				vertex.pos = RIGHT_BOT_FRONT;
+			}
+			else if (j == 8) {
+				vertex.pos = RIGHT_TOP_FRONT;
+			}
+			else if (j == 9) {
+				vertex.pos = RIGHT_TOP_FRONT;//right
+			}
+			else if (j == 10) {
+				vertex.pos = RIGHT_TOP_BACK;
+			}
+			else if (j == 11) {
+				vertex.pos = RIGHT_BOT_BACK;
+			}//						 		
+			else if (j == 12) {
+				vertex.pos = LEFT_TOP_BACK;//top
+			}
+			else if (j == 13) {
+				vertex.pos = RIGHT_TOP_BACK;
+			}
+			else if (j == 14) {
+				vertex.pos = RIGHT_TOP_FRONT;
+			}
+			else if (j == 15) {
+				vertex.pos = RIGHT_TOP_FRONT;//top
+			}
+			else if (j == 16) {
+				vertex.pos = LEFT_TOP_FRONT;
+			}
+			else if (j == 17) {
+				vertex.pos = LEFT_TOP_BACK;
+			}
+			vertex.colour = vertex.pos;// cubeVertexColour;//back, right, top 		
+			vertex.texCoord = { 0.0f,0.0f };
+			vertex.normal = { 0.5f,0.5f,0.5f };
+			cubeType.vertices.push_back(vertex);
+		}
+		for (int j = 18; j < 36; j++) {//front, left, bottom
+			Vertex vertex;
+			if (j == 18) {//
+				vertex.pos = LEFT_BOT_FRONT;//front
+			}
+			else if (j == 19) {
+				vertex.pos = LEFT_TOP_FRONT;//
+			}
+			else if (j == 20) {
+				vertex.pos = RIGHT_TOP_FRONT;//
+			}
+			else if (j == 21) {
+				vertex.pos = RIGHT_TOP_FRONT;//front
+			}
+			else if (j == 22) {
+				vertex.pos = RIGHT_BOT_FRONT;//
+			}
+			else if (j == 23) {
+				vertex.pos = LEFT_BOT_FRONT;//
+			}//								
+			else if (j == 24) {
+				vertex.pos = LEFT_BOT_BACK;//left
+			}
+			else if (j == 25) {
+				vertex.pos = LEFT_TOP_FRONT;//
+			}
+			else if (j == 26) {
+				vertex.pos = LEFT_BOT_FRONT;//
+			}
+			else if (j == 27) {
+				vertex.pos = LEFT_TOP_FRONT;//left
+			}
+			else if (j == 28) {
+				vertex.pos = LEFT_BOT_BACK;//
+			}
+			else if (j == 29) {
+				vertex.pos = LEFT_TOP_BACK;//
+			}
+			else if (j == 30) {
+				vertex.pos = LEFT_BOT_BACK;//bottom
+			}
+			else if (j == 31) {
+				vertex.pos = RIGHT_BOT_FRONT;
+			}
+			else if (j == 32) {
+				vertex.pos = RIGHT_BOT_BACK;
+			}
+			else if (j == 33) {
+				vertex.pos = RIGHT_BOT_FRONT;//bottom
+			}
+			else if (j == 34) {
+				vertex.pos = LEFT_BOT_BACK;
+			}
+			else if (j == 35) {
+				vertex.pos = LEFT_BOT_FRONT;
+			}
+			vertex.colour = vertex.pos;//cubeVertexColour;
+			vertex.texCoord = { 0.0f,0.0f };
+			vertex.normal = { 0.5f,0.5f,0.5f };
+			cubeType.vertices.push_back(vertex);
+		}
+
+		initialized = true;
+	}
+	uint32_t prevVertexBufferSize = vertices.size();
+	unit cube(&cubeType, prevVertexBufferSize);
+	unitList.push_back(cube);
+
+	for (uint32_t j = 0; j < cubeType.vertices.size(); j++) {
+		vertices.push_back(cubeType.vertices[j]);//iterate unit types vertices, push vertices into main vertex buffer;
+	}
+}
+
 void Models::loadHitboxes()
 {
 	for (uint32_t i = 0; i < unitList.size(); i++) {
 		//std::cout << "loading unit: " << i << " hitbox\n";
 		for (uint32_t j = 0; j < 36; j++) {
-			vertices.push_back(unitList[i].hitbox.cubeVertices[j]);//iterate unit types vertices, push vertices into main vertex buffer;
+			vertices.push_back(unitList[i].hitbox.cubeVertices[j]);//iterate units, push vertices into main vertex buffer;
 		}
 	}
 }
@@ -154,10 +321,8 @@ void Models::loadModels()
 	unitList[0].stationary = true;
 	loadModel("20mm round");
 	unitList[1].move(glm::vec3(0.0f, 10.0f, -15.0f));
-	
 	loadModel("pyramid");
 	unitList[2].move(glm::vec3(-400.0f, 0.0f, -200.0f));
-
 
 	/*loadModel("a4");
 	unitList[3].move(glm::vec3(1.0f, 1.0f, -10.0f));
@@ -171,15 +336,13 @@ void Models::loadModels()
 	//loadModel("t-54");
 	//unitList[4].move(glm::vec3(10.0f, 0.0f, -20.0f));
 
-
-	//const uint32_t c = 1;
-	//for (int i = 0; i < c; i++) {
-	//	for (int j = 0; j < c; j++) {
-	//		//loadModel("t62");
-	//		loadModel("a4");
-	//		//loadModel("t-54");
-	//		unitList[5 + (i* c) + j].move(glm::vec3(20.0f - (j * 8), 0.0f, -18.0f - (i * 8)));
-	//	}
-	//}
+	const uint32_t c = 1;//n^3 higher for more models
+	const float s = 2.5f;//spacing
+	for (int i = 0; i < c; i++) {
+		for (int j = 0; j < c; j++) {
+			loadCube();
+			unitList[3 + (i* c) + j].move(glm::vec3(1.0f - (j * s), 0.0f, -1.0f - (i * s)));
+		}
+	}
 }
 

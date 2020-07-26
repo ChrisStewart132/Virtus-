@@ -33,6 +33,7 @@ std::vector<Vertex> vertices;
 
 void transformUnits();
 void loadModel(std::string string);
+void loadCube();
 void loadHitboxes();
 void updateHitboxes();
 };

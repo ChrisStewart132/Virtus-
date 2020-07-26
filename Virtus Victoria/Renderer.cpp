@@ -132,6 +132,7 @@ void Renderer::drawFrame()
 	vkQueueWaitIdle(setupPtr->queue);
 }
 
+\
 void Renderer::update()
 {
 	//start acquire swapchain image done in run function
@@ -415,10 +416,18 @@ void Renderer::moveUnits()
 	gradient = mouseWorld;
 	if (windowPtr->isMousePressed(1)) {//right click
 		d++;
-		modelsPtr->unitList[1].move(-modelsPtr->unitList[1].pos);//move back to 0,0
-		modelsPtr->unitList[1].move(cameraPosition);
-		modelsPtr->unitList[1].move(gradient);
-		modelsPtr->unitList[1].v = gradient * glm::vec3(d);
+		//modelsPtr->unitList[3].move(-modelsPtr->unitList[3].pos);//move back to 0,0
+		//modelsPtr->unitList[3].move(cameraPosition);
+		//modelsPtr->unitList[3].move(gradient);
+		//modelsPtr->unitList[3].v = gradient * glm::vec3(d);
+		//printf("%i\n",d);
+		if (d == 1) {
+			modelsPtr->loadCube();
+			//printf("cube created\n");
+		}
+		modelsPtr->unitList[modelsPtr->unitList.size() - 1].move(-modelsPtr->unitList[modelsPtr->unitList.size() - 1].pos);//move back to 0,0
+		modelsPtr->unitList[modelsPtr->unitList.size() - 1].move((cameraPosition + (gradient*glm::vec3(2))));
+		modelsPtr->unitList[modelsPtr->unitList.size() - 1].v = gradient * glm::vec3(d);
 
 		for (int i = 1; i < modelsPtr->unitList.size(); i++) {//for each unit, except terrain [0]
 			bool collision = false;
@@ -442,7 +451,7 @@ void Renderer::moveUnits()
 			}
 
 			if (collision & !modelsPtr->unitList[i].antiGravity) {
-				modelsPtr->unitList[i].v.y += 3.f;
+				modelsPtr->unitList[i].v.y += 1.f;
 			}
 		}
 	}
