@@ -73,6 +73,9 @@ public:
 
 	VkBuffer vertexBuffer;								//vkDestroyBuffer(device,vertexBuffer,nullptr);
 	VkDeviceMemory vertexBufferMemory;					//vkFreeMemory(device,vertexBufferMemory,nullptr);
+	VkBuffer vertexBuffer2;								//vkDestroyBuffer(device,vertexBuffer2,nullptr);
+	VkDeviceMemory vertexBufferMemory2;					//vkFreeMemory(device,vertexBufferMemory2,nullptr);
+	//vertex 2 used for hitboxes / debug
 
 	void destroy();
 };

@@ -34,7 +34,7 @@ void Physics::force(unit & _unit)
 {
 	_unit.v.y -= g;//gravity (y axis negative force)
 	_unit.v *= 0.999;//drag
-	
+
 	float A;
 	float cDrag = 1.0f;//coef of drag for a cone
 	float drag;//need to calculate coef drag and frontal area for each axis of velocity
@@ -139,8 +139,6 @@ void Physics::collision(unit & _unit, unit & _unit2,bool groundCollision)
 		if (_unit.hitbox.max.z - _unit.v.z > _unit2.hitbox.min.z) {
 			//v1f.z *= -1;
 		}
-
-		
 		_unit.v = v1f * elasticity;
 
 		////y
@@ -183,8 +181,6 @@ void Physics::collision(unit & _unit, unit & _unit2,bool groundCollision)
 		//penetration.z = _unit2.hitbox.max.z - _unit.hitbox.min.z;
 
 		penetration = _unit2.hitbox.max - _unit.hitbox.min;
-
-
 		glm::vec3 penetrationMag;
 		penetrationMag.x = abs(penetration.x);
 		penetrationMag.y = abs(penetration.y);

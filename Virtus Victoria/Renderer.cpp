@@ -71,6 +71,7 @@ void Renderer::createCommandBuffers()
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, &descriptorsPtr->vertexBuffer, offsets);
 		//vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+		vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, &descriptorsPtr->vertexBuffer2, offsets);
 
 		vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[0].pipelineLayout, 0, 1, descriptorsPtr->descriptorSets, 0, nullptr);
 		//
@@ -196,20 +197,22 @@ void Renderer::update()
 	//update and bind ubo
 	updateUniformBuffer();//vkmapMemory-ubo object-vkunmapMemory
 
-	//bind vertex data
-	vkBindBufferMemory(setupPtr->device, descriptorsPtr->vertexBuffer, descriptorsPtr->vertexBufferMemory, 0);
-	size_t bufferSize = sizeof(modelsPtr->vertices[0]) * modelsPtr->vertices.size();
-	void* data;
-	vkMapMemory(setupPtr->device, descriptorsPtr->vertexBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, modelsPtr->vertices.data(), bufferSize);
-	vkUnmapMemory(setupPtr->device, descriptorsPtr->vertexBufferMemory);
-	VkDeviceSize offsets[] = { 0 };
-	vkCmdBindVertexBuffers(commandBuffers[0], 0, 1, &descriptorsPtr->vertexBuffer, offsets);
-	//vkCmdBindIndexBuffer(commandBuffers[0], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+	if (1) {
+		//bind vertex data
+		vkBindBufferMemory(setupPtr->device, descriptorsPtr->vertexBuffer, descriptorsPtr->vertexBufferMemory, 0);
+		size_t bufferSize = sizeof(modelsPtr->vertices[0]) * modelsPtr->vertices.size();
+		void* data;
+		vkMapMemory(setupPtr->device, descriptorsPtr->vertexBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, modelsPtr->vertices.data(), bufferSize);
+		vkUnmapMemory(setupPtr->device, descriptorsPtr->vertexBufferMemory);
+		VkDeviceSize offsets[] = { 0 };
+		vkCmdBindVertexBuffers(commandBuffers[0], 0, 1, &descriptorsPtr->vertexBuffer, offsets);
+		//vkCmdBindIndexBuffer(commandBuffers[0], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+	}
 
+	
 
-
-
+	
 	//main draw pass
 	vkCmdBindDescriptorSets(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].pipelineLayout, 0, 1, &descriptorsPtr->descriptorSets[0], 0, nullptr);
 	if (setupPtr->configPtr->textures) {
@@ -230,8 +233,37 @@ void Renderer::update()
 		vkCmdDraw(commandBuffers[0], modelsPtr->vertices.size()-hitboxVertexCount, 1, 0, 0);//1 draw call for all units
 	}
 	
+
+
+	if (windowPtr->isKeyPressed(GLFW_KEY_1) || 0) {
+		//bind vertex2 data (hitbox / debug)
+		vkBindBufferMemory(setupPtr->device, descriptorsPtr->vertexBuffer2, descriptorsPtr->vertexBufferMemory2, 0);
+		size_t bufferSize2 = sizeof(modelsPtr->vertices2[0]) * modelsPtr->vertices2.size();
+		void* data2;
+		vkMapMemory(setupPtr->device, descriptorsPtr->vertexBufferMemory2, 0, bufferSize2, 0, &data2);
+		memcpy(data2, modelsPtr->vertices2.data(), bufferSize2);
+		vkUnmapMemory(setupPtr->device, descriptorsPtr->vertexBufferMemory2);
+		VkDeviceSize offsets2[] = { 0 };
+		vkCmdBindVertexBuffers(commandBuffers[0], 0, 1, &descriptorsPtr->vertexBuffer2, offsets2);
+
+		//render vertex2 
+		pipelineIndex = 1;
+		vkCmdBindPipeline(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].graphicsPipeline);//line
+		vkCmdBindDescriptorSets(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].pipelineLayout, 0, 1, &descriptorsPtr->descriptorSets[0], 0, nullptr);
+		texturePushConstant.textureIndex = 5;
+		vkCmdPushConstants(commandBuffers[0], pipelinePtr[pipelineIndex].pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(texturePushConstant), &texturePushConstant);
+		vkCmdDraw(commandBuffers[0], modelsPtr->vertices2.size(), 1, 0, 0);//1 draw call for all units
+	}
+
+
+
+
+
+
+
+
 	//rendering hitboxes with lines polygon mode pipeline to main viewport
-	if (windowPtr->isKeyPressed(GLFW_KEY_1)) {
+	if (windowPtr->isKeyPressed(GLFW_KEY_1) && 0) {
 		pipelineIndex = 1;
 		vkCmdBindPipeline(commandBuffers[0], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr[pipelineIndex].graphicsPipeline);//line
 
@@ -313,6 +345,8 @@ void Renderer::update()
 		}
 		//}
 	}
+
+
 
 	//end////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	vkCmdEndRenderPass(commandBuffers[0]);
@@ -414,7 +448,7 @@ void Renderer::moveUnits()
 	glm::vec3 gradient;
 	static int d;
 	gradient = mouseWorld;
-	if (windowPtr->isMousePressed(1)) {//right click
+	if (windowPtr->isMousePressed(1)) {//right click SPAWNS A CUBE INFRONT OF CAMERA
 		d++;
 		//modelsPtr->unitList[3].move(-modelsPtr->unitList[3].pos);//move back to 0,0
 		//modelsPtr->unitList[3].move(cameraPosition);
@@ -452,6 +486,9 @@ void Renderer::moveUnits()
 
 			if (collision & !modelsPtr->unitList[i].antiGravity) {
 				modelsPtr->unitList[i].v.y += 1.f;
+				if (i==2) {
+					//printf("pyramid collision\n");
+				}
 			}
 		}
 	}
@@ -554,10 +591,6 @@ void Renderer::moveUnits()
 
 
 
-
-
-
-
 	for (uint32_t i = 1; i < modelsPtr->unitList.size(); i++) {	//unitList[0] = terrain
 		
 		modelsPtr->unitList[i].hitbox.calculateHitbox(modelsPtr->vertices, modelsPtr->unitList[i].unitTypePtr->vertices.size(), modelsPtr->unitList[i].vertexStart);//re-calc max/min
@@ -569,54 +602,42 @@ void Renderer::moveUnits()
 		}
 		
 		physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[0],true);//check collision with ground unit
-		if (i == 1) {//bullet
-			//physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[3]);//t62 and wasd bullet
-		}
-
+		
+		
 		for (int p = 0; p < gamePtr->entityList[0].gunPtr->ammo; p++) {
 			if (i == gamePtr->entityList[0].projectileUnitListIndex + p) {
 				physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[3]);//check sentry[0] projectiles against unit 3 
 			}
 		}
+		
+		
+		
 
-		for (int p = 0; p < gamePtr->sentryList[0].gunPtr->ammo;p++) {
-			if (i == gamePtr->sentryList[0].projectileUnitListIndex+p) {
-				physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[3]);//check sentry[0] projectiles against t62 
-			}
-		}
-		for (uint32_t j = 1; j < modelsPtr->unitList.size(); j++) {
-			if (i != j) {
-				//physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[j]);
-			}
-		}
+		
 
-		if (i != 3) {
-			//physics.collision(modelsPtr->unitList[i], modelsPtr->unitList[3]);//check collision with t62
-		}
-
-		if (windowPtr->isKeyPressed(GLFW_KEY_7)) {
+		if (windowPtr->isKeyPressed(GLFW_KEY_7)) {//raise units
 			if (!modelsPtr->unitList[i].antiGravity) {
 				modelsPtr->unitList[i].v.y += 1 + (i * 0.1f);
 			}
 		}
 		else if (windowPtr->isKeyPressed(GLFW_KEY_8)) {
-			if (!modelsPtr->unitList[i].antiGravity) {
+			if (!modelsPtr->unitList[i].antiGravity) {//lower units
 				modelsPtr->unitList[i].v.y -= 1 + (i * 0.1f);
 			}
 		}
 
-		if (windowPtr->isKeyPressed(GLFW_KEY_9)) {
-			if (!modelsPtr->unitList[i].antiGravity) {
+		if (windowPtr->isKeyPressed(GLFW_KEY_9)) {//rotate units +
+			if (!modelsPtr->unitList[i].antiGravity) {//spawned blocks bugged todo
 				modelsPtr->unitList[i].rotation.y += 2 * i;
 			}
 		}
-		else if (windowPtr->isKeyPressed(GLFW_KEY_0)) {
+		else if (windowPtr->isKeyPressed(GLFW_KEY_0)) {//rotate units -
 			if (!modelsPtr->unitList[i].antiGravity) {
 				modelsPtr->unitList[i].rotation.y -= 1 * i;
 			}
 		}
 
-		if (windowPtr->isKeyPressed(GLFW_KEY_5)) {
+		if (windowPtr->isKeyPressed(GLFW_KEY_5)) {//move units back (z+)
 			if (!modelsPtr->unitList[i].antiGravity) {
 				modelsPtr->unitList[i].v.z += 0.1 * i;
 			}

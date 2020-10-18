@@ -15,11 +15,11 @@
 
 struct hitbox {
 	glm::vec3 max, min;
-	glm::vec3 cubeVertexColour = { 1.0f,0.0f,0.0f };
+	glm::vec3 cubeVertexColour = { 1.0f,1.0f,1.0f };
 	std::vector<Vertex> cubeVertices;
 
 	void createCubeMesh() {//create 36 vertices, only call once!
-
+		printf("creating cube mesh\n");
 		//top
 		glm::vec3 LEFT_TOP_FRONT = { min.x,max.y,min.z };
 		glm::vec3 RIGHT_TOP_FRONT = { max.x,max.y,min.z };
@@ -313,6 +313,7 @@ struct hitbox {
 				if (vertices[u].pos.z > max.z) { max.z = vertices[u].pos.z; }
 			}
 		}
+		//printf("max = %f,%f,%f\n",max.x, max.y, max.z);
 	}
 
 	bool hitboxCollision(hitbox & box1, hitbox & box2)

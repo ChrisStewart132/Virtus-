@@ -1,19 +1,6 @@
 #pragma once
 #define STB_IMAGE_IMPLEMENTATION
 
-//TODO
-//CAMERA
-//CUSTOM PIPELINE CREATION WITH CONFIG STRUCT
-//MORE PRECISE HIT DETECTION THAN BOUNDING BOX
-//MODEL SPACE SPLIT INTO 3D CUBES, FOR HIT DETECTION
-//
-
-//2d map grid system-create grid, sort units into grid, as units move self update grid position, hit detection only checks units in same grid.
-
-//change way sentry turrets are loaded in model class
-
-//functions to rotate turret, rotate gun, aim at a point, shoot single bullet
-
 //test
 #include "sonar.h"
 //classes
@@ -47,14 +34,8 @@ struct asset {
 
 //vulkan SDK 1.0.77.0
 int main() {
-	//notes
-	//todo
-	//drag equation (using velocity vector and relevant surface area/drag coef
-	//visualised hitboxes need correcting: triangles only visible from certain orientations (+x e.g.)
-	//rotation dynamics
 	
-	//hitboxes, rotate hitboxes in transform, collision detection, correct unit COM, construct class (combined COM), torque/moments
-
+	
 	//readBMP("Untitled.bmp");
 
 	config simpleConfig;
@@ -66,19 +47,19 @@ int main() {
 
 	simpleConfig.swapChainCount = 1;//not implemented
 
-	simpleConfig.lighting = 1;//frag colour green??1
+	simpleConfig.lighting = true;//frag colour green??1
 
-	simpleConfig.textures = 1;
-	simpleConfig.mip = 1;
+	simpleConfig.textures = true;
+	simpleConfig.mip = true;
 
-	simpleConfig.antialiasing = 1;//must be false if msaa=1
+	simpleConfig.antialiasing = true;//must be false if msaa=1
 	simpleConfig.msaaSamples = VK_SAMPLE_COUNT_8_BIT;//1,2,4,8
-	simpleConfig.samepleShading = 1;
+	simpleConfig.samepleShading = true;
 
-	simpleConfig.transparentWindow = 0;
-	simpleConfig.windowTransparency = 0.9f;
+	simpleConfig.transparentWindow = false;
+	simpleConfig.windowTransparency = 0.8f;
 
-	//simpleConfig.multipleViewports = 1;
+	simpleConfig.multipleViewports = true;
 
 	simpleConfig.check();
 
@@ -89,7 +70,7 @@ int main() {
 	const uint32_t unitTypeCount = 9;//update descriptors.h unittypecount manually and frag shader tex sampler array
 	unitType unitTypeArray[unitTypeCount];
 	std::vector<asset> assets;
-	assets.push_back({ "terrain",99999999.0f,true });
+	assets.push_back({ "terrain",99999999.0f,true });//name,mass,uniqueTexture
 	assets.push_back({ "20mm round",0.1f });
 	assets.push_back({ "20mm gun",5 });
 	assets.push_back({ "turret",10 });
@@ -97,7 +78,7 @@ int main() {
 	assets.push_back({ "t62",30000 });
 	assets.push_back({ "t-90a",50000 });
 	assets.push_back({ "a4",13500 });
-	assets.push_back({ "ak47",10 });
+	assets.push_back({ "ak47",4 });
 
 
 	for (int i = 0; i < unitTypeCount; i++) {
@@ -116,22 +97,18 @@ int main() {
 	//load all models into unitTypes and load main vertex buffer with units
 	Models models(unitTypeArray, unitTypeCount);	
 	Game game(&virtusWindow, &models);
-
 	game.createSentry();
 	game.createGun();
 	models.transformUnits();
 	models.loadHitboxes();
-
-	//todo
-	//render starting screen
-	//create new config with specified settings
-	//todo
 
 	RenderPass renderPass(&setup);	
 	DescriptorSetLayout descriptorSetLayout(&setup,&models);
 
 	std::vector<Pipeline> pipelineVector;
 
+	//create different pipelines to put into pipeline vector for use 
+	//e.g. fill mode, line mode, point mode, specific colours e.g. vk_color_component_g_bit, line width
 	pipelineInfo pipelineFillInfo;
 	pipelineFillInfo.polygonMode = VK_POLYGON_MODE_FILL;
 	if (!simpleConfig.lighting) {

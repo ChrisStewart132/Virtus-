@@ -47,6 +47,8 @@ void Descriptors::destroy()
 	vkFreeMemory(setupPtr->device, uniformBufferMemory, nullptr);
 	vkDestroyBuffer(setupPtr->device, vertexBuffer, nullptr);
 	vkFreeMemory(setupPtr->device, vertexBufferMemory, nullptr);
+	vkDestroyBuffer(setupPtr->device, vertexBuffer2, nullptr);
+	vkFreeMemory(setupPtr->device, vertexBufferMemory2, nullptr);
 
 	
 	for (uint32_t i = 0; i < unitTypeCount; i++) {
@@ -391,6 +393,36 @@ void Descriptors::createVertexBuffer()
 	vkMapMemory(setupPtr->device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
 	memcpy(data, modelsPtr->vertices.data(), (size_t)sizeof(modelsPtr->vertices[0]) * modelsPtr->vertices.size());
 	vkUnmapMemory(setupPtr->device, vertexBufferMemory);
+
+
+
+	/////////////////////////////////////////////////////////
+	//create vertex buffer for hitbox vertices (if turned on)
+	//VkBufferCreateInfo bufferInfo = {};
+	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	//bufferInfo.size = sizeof(modelsPtr->vertices[0]) * modelsPtr->vertices.size();
+	bufferInfo.size = 128000000/2;
+	bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	vkCreateBuffer(setupPtr->device, &bufferInfo, nullptr, &vertexBuffer2);
+	printf("hitbox vertex buffer size: %i\n", bufferInfo.size);
+	//VkMemoryRequirements memRequirements;
+	vkGetBufferMemoryRequirements(setupPtr->device, vertexBuffer2, &memRequirements);
+
+	//VkMemoryAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = setupPtr->findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+	vkAllocateMemory(setupPtr->device, &allocInfo, nullptr, &vertexBufferMemory2);
+	vkBindBufferMemory(setupPtr->device, vertexBuffer2, vertexBufferMemory2, 0);
+
+	void* data2;
+	vkMapMemory(setupPtr->device, vertexBufferMemory2, 0, bufferInfo.size, 0, &data2);
+	memcpy(data2, modelsPtr->vertices2.data(), (size_t)sizeof(modelsPtr->vertices2[0]) * modelsPtr->vertices2.size());
+	vkUnmapMemory(setupPtr->device, vertexBufferMemory2);
+	//create vertex buffer for hitbox vertices (if turned on)
+	/////////////////////////////////////////////////////////
 }
 
 

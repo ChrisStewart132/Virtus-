@@ -28,6 +28,7 @@ Models(unitType* _unitTypeArray, const uint32_t _unitTypeCount);
 std::vector<unitType> unitTypeList;
 std::vector<unit> unitList;
 std::vector<Vertex> vertices;
+std::vector<Vertex> vertices2;
 //std::vector<uint32_t> indices; for index buffer
 
 

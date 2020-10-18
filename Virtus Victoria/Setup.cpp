@@ -148,8 +148,6 @@ void Setup::createDevice()
 		}
 	}
 	
-	
-	
 	float queuePriority = 1.0f;
 	VkDeviceQueueCreateInfo queueInfo = {};
 	queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;

@@ -105,9 +105,15 @@ void Models::loadModel(std::string string)
 		if (unitTypeList[i].name == string) {//if model found
 			unit newUnit(&unitTypeList[i], prevVertexBufferSize);
 			unitList.push_back(newUnit);
-	
+			std::cout << "created:" << unitList[unitList.size() - 1].unitTypePtr->name << std::endl;
 			for (uint32_t j = 0; j < unitTypeList[i].vertices.size(); j++) {
 				vertices.push_back(unitTypeList[i].vertices[j]);//iterate unit types vertices, push vertices into main vertex buffer;
+			}
+			//printf("unitlist size: %i\n", unitList.size());
+			//printf("cube vertices size: %i\n", unitList[unitList.size() - 1].hitbox.cubeVertices.size());
+			for (uint32_t j = 0; j < unitList[unitList.size() - 1].hitbox.cubeVertices.size(); j++) {//add cubeMesh created in unit class to vertex2 for rendering
+				vertices2.push_back(unitList[unitList.size()-1].hitbox.cubeVertices[j]);//iterate unit types vertices, push vertices into main vertex buffer;
+				//std::cout << unitList[unitList.size() - 1].hitbox.cubeVertices[j].pos.x << "," << unitList[unitList.size() - 1].hitbox.cubeVertices[j].pos.y << "," << unitList[unitList.size() - 1].hitbox.cubeVertices[j].pos.z << std::endl;
 			}
 			success = true;
 		}
@@ -131,7 +137,7 @@ void Models::loadCube()
 
 		std::vector<Vertex> cubeVertices;
 		glm::vec3 max, min, location;
-		glm::vec3 cubeVertexColour = { 1.0f,0.0f,0.0f };
+		glm::vec3 cubeVertexColour = { 1.0f,1.0f,1.0f };
 		float r = 1.0f/2;
 		max.x = r;
 		min.x = -r;
@@ -279,7 +285,9 @@ void Models::loadCube()
 	uint32_t prevVertexBufferSize = vertices.size();
 	unit cube(&cubeType, prevVertexBufferSize);
 	unitList.push_back(cube);
-
+	for (uint32_t j = 0; j < unitList[unitList.size() - 1].hitbox.cubeVertices.size(); j++) {//move cubeMesh created in unit class to vertex2 for rendering
+		vertices2.push_back(unitList[unitList.size() - 1].hitbox.cubeVertices[j]);//iterate unit types vertices, push vertices into main vertex buffer;
+	}
 	for (uint32_t j = 0; j < cubeType.vertices.size(); j++) {
 		vertices.push_back(cubeType.vertices[j]);//iterate unit types vertices, push vertices into main vertex buffer;
 	}
@@ -287,20 +295,31 @@ void Models::loadCube()
 
 void Models::loadHitboxes()
 {
+	//printf("unitlist size: %i\n", unitList.size());
 	for (uint32_t i = 0; i < unitList.size(); i++) {
 		//std::cout << "loading unit: " << i << " hitbox\n";
 		for (uint32_t j = 0; j < 36; j++) {
 			vertices.push_back(unitList[i].hitbox.cubeVertices[j]);//iterate units, push vertices into main vertex buffer;
 		}
 	}
+	//printf("at start vertices has size of: %i\n", vertices.size());
+	//printf("at start vertices2 has size of: %i\n", vertices2.size());
+	//printf("is this used? loadHitboxes()\n");//seems not really
 }
 
 void Models::updateHitboxes()
 {
+	//printf("is this used? updateHitboxes()\n");//yes every frame..
 	for (uint32_t u = 0; u < unitList.size(); u++) {//for each unit
 		uint32_t start = vertices.size() - (unitList.size() * 36) + (36*u);//start vertex of unit hitbox
+		//for (uint32_t i = start; i < start+36; i++) {//unit hitbox vertices	
+			//vertices[i].pos = unitList[u].hitbox.cubeVertices[(i - start)].pos;//iterate units vertices, update vertices to unit vertices;	
+		//}
+		
+		start = (u * 36);
+		//std::cout << u << "," << start << "," << vertices2.size() << "," << unitList[u].unitTypePtr->name <<std::endl;
 		for (uint32_t i = start; i < start+36; i++) {//unit hitbox vertices	
-			vertices[i].pos = unitList[u].hitbox.cubeVertices[(i - start)].pos;//iterate units vertices, update vertices to unit vertices;		
+			vertices2[i].pos = unitList[u].hitbox.cubeVertices[i-start].pos;//iterate units vertices, update vertices to unit vertices;	
 		}
 	}
 }
@@ -336,7 +355,7 @@ void Models::loadModels()
 	//loadModel("t-54");
 	//unitList[4].move(glm::vec3(10.0f, 0.0f, -20.0f));
 
-	const uint32_t c = 1;//n^3 higher for more models
+	const uint32_t c = 0;//n^3 higher for more models
 	const float s = 2.5f;//spacing
 	for (int i = 0; i < c; i++) {
 		for (int j = 0; j < c; j++) {

@@ -14,7 +14,7 @@ Game::Game(Window* _windowPtr, Models* _modelsptr)
 
 	//load gun types
 	gun g20mm;
-	g20mm.ammo = 200;
+	g20mm.ammo = 1;
 	g20mm.fireRate = 0.3f;
 	g20mm.muzzleVelocity = 72;
 	g20mm.barrel = glm::vec3(0.05f, -0.031f, -0.251f);
